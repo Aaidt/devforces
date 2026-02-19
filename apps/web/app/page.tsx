@@ -1,44 +1,43 @@
 import Link from "next/link";
 import { SignUpButton } from "@clerk/nextjs";
-import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] font-sans overflow-x-hidden flex flex-col">
       {/* Hero Section */}
-      <main className={styles.hero}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.title}>
+      <main className="pt-32 pb-20 px-8 bg-[#0a0a0a] border-b border-white/10 flex flex-col items-center justify-center text-center">
+        <div className="max-w-[900px] w-full">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-[#ededed] tracking-tighter">
             The Operating System for <br />
-            <span className={styles.titleHighlight}>Technical Hiring</span>
+            <span className="text-green-500">Technical Hiring</span>
           </h1>
-          <p className={styles.subtitle}>
+          <p className="text-xl text-zinc-400 mb-10 max-w-[700px] mx-auto leading-relaxed">
             Assess, interview, and hire top developers with the most advanced coding platform.
             Used by leading engineering teams worldwide.
           </p>
-          <div className={styles.ctaGroup}>
+          <div className="flex gap-4 justify-center flex-col sm:flex-row">
             <SignUpButton mode="modal">
-              <button className={styles.primaryButton}>
+              <button className="bg-green-500 text-black px-8 py-3.5 rounded font-semibold text-base border-none cursor-pointer transition-colors hover:bg-green-600">
                 Start Hiring
               </button>
             </SignUpButton>
-            <Link href="/challenges" className={styles.secondaryButton}>
-              Take a Challenge
+            <Link href="/resume_upload" className="bg-transparent text-[#ededed] px-8 py-3.5 rounded font-semibold text-base border border-white/20 cursor-pointer transition-colors hover:border-[#ededed] hover:bg-white/5 no-underline flex items-center justify-center">
+              upload resume
             </Link>
           </div>
         </div>
       </main>
 
       {/* Value Proposition / Features */}
-      <section className={styles.features}>
-        <h2 className={styles.sectionTitle}>
+      <section className="py-24 px-8 bg-[#0a0a0a] max-w-[1200px] mx-auto w-full">
+        <h2 className="text-3xl font-semibold mb-4 text-center">
           Why Devforces?
         </h2>
-        <p className={styles.sectionSubtitle}>
+        <p className="text-center text-zinc-400 mb-16 text-lg">
           Built for scale, security, and developer experience.
         </p>
         
-        <div className={styles.grid}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <FeatureCard 
             title="Standardized Assessments" 
             text="Create consistent, unbiased technical assessments that predict job performance. Validated by thousands of hires."
@@ -58,28 +57,28 @@ export default function Home() {
       </section>
 
       {/* Bottom CTA */}
-      <section className={styles.ctaSection}>
-        <h2 className={styles.ctaTitle}>Ready to transform your hiring?</h2>
-        <p className={styles.ctaText}>
+      <section className="bg-[#171717] py-24 px-8 text-center border-t border-white/10">
+        <h2 className="text-4xl font-bold mb-6">Ready to transform your hiring?</h2>
+        <p className="text-zinc-400 mb-10 text-xl max-w-[600px] mx-auto">
           Join thousands of companies building better teams with Devforces.
         </p>
         <SignUpButton mode="modal">
-          <button className={styles.primaryButton}>
+          <button className="bg-green-500 text-black px-8 py-3.5 rounded font-semibold text-base border-none cursor-pointer transition-colors hover:bg-green-600">
             Get Started for Free
           </button>
         </SignUpButton>
       </section>
 
       {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
+      <footer className="bg-black py-16 px-8 border-t border-white/10 text-sm text-neutral-500">
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div>
             &copy; {new Date().getFullYear()} Devforces Inc. All rights reserved.
           </div>
-          <div className={styles.footerLinks}>
-            <Link href="/privacy" className={styles.footerLink}>Privacy</Link>
-            <Link href="/terms" className={styles.footerLink}>Terms</Link>
-            <Link href="/contact" className={styles.footerLink}>Contact Support</Link>
+          <div className="flex gap-8">
+            <Link href="/privacy" className="text-zinc-400 transition-colors hover:text-white no-underline">Privacy</Link>
+            <Link href="/terms" className="text-zinc-400 transition-colors hover:text-white no-underline">Terms</Link>
+            <Link href="/contact" className="text-zinc-400 transition-colors hover:text-white no-underline">Contact Support</Link>
           </div>
         </div>
       </footer>
@@ -89,12 +88,12 @@ export default function Home() {
 
 function FeatureCard({ title, text, icon }: { title: string; text: string; icon: React.ReactNode }) {
   return (
-    <div className={styles.card}>
-      <div className={styles.iconWrapper}>
+    <div className="bg-[#171717] border border-white/10 rounded-lg p-8 transition-all hover:border-green-500 hover:-translate-y-0.5">
+      <div className="w-12 h-12 flex items-center justify-center bg-green-500/10 rounded-md text-green-500 mb-6">
         {icon}
       </div>
-      <h3 className={styles.cardTitle}>{title}</h3>
-      <p className={styles.cardText}>{text}</p>
+      <h3 className="text-xl font-semibold mb-4 text-[#ededed]">{title}</h3>
+      <p className="text-zinc-400 leading-relaxed text-base">{text}</p>
     </div>
   );
 }

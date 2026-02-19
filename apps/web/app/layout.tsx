@@ -10,7 +10,6 @@ import {
 } from "@clerk/nextjs";
 import Link from "next/link";
 import "./globals.css";
-import styles from "./layout.module.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,20 +33,20 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          <header className={styles.header}>
-            <Link href="/" className={styles.logo}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a] text-[#ededed]`}>
+          <header className="flex justify-between items-center px-8 py-4 border-b border-white/10 bg-black/50 backdrop-blur-md fixed top-0 left-0 right-0 z-50 h-16">
+            <Link href="/" className="font-bold text-xl text-green-500 no-underline tracking-tighter">
               Devforces
             </Link>
-            <div className={styles.auth}>
+            <div className="flex gap-4 items-center">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className={styles.loginBtn}>
+                  <button className="text-zinc-400 font-medium hover:text-zinc-200 transition-colors bg-transparent border-none cursor-pointer text-sm">
                     Login
                   </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className={styles.signupBtn}>
+                  <button className="bg-green-500 text-black px-4 py-2 rounded font-semibold text-sm border-none cursor-pointer transition-colors hover:bg-green-600">
                     Sign Up
                   </button>
                 </SignUpButton>
