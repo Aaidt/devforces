@@ -7,70 +7,104 @@ datasource db {
    provider = "postgresql"
 }
 
-model User {
-   id          String        @id @default(uuid())
-   email       String        @unique
-   password    String
-   role        Role
-   createdAt   DateTime      @default(now())
-   updatedAt   DateTime      @updatedAt
-   leaderboars Leaderboard[]
-   submissions Submission[]
+enum Role {
+   user
+   admin
 }
 
-enum Role {
-   User
-   Admin
+enum Language {
+  javascript
+  typescript
+  python
+  java
+  go
+  csharp
+  php
+}
+
+enum Status {
+   pending
+   running
+   failed
+   accepted
+}
+
+model User {
+   id          String   @id @default(uuid())
+   profile_pic String
+   resume_url  String?
+   gh_url      String
+   lc_url      String?
+   cf_url      String?
+   created_at  DateTime @default(now())
+   updated_at  DateTime @updatedAt
+
+   role Role
+
+   leaderboards Leaderboard[]
+   submissions  Submission[]
 }
 
 model Contest {
-   id                        String                      @id @default(uuid())
-   title                     String
-   startTime                 DateTime
-   contestToChallengeMapping ContestToChallengeMapping[]
-   leaderboards              Leaderboard[]
+   id         String   @id @default(uuid())
+   title      String   @unique
+   deadline   DateTime
+   start_time DateTime
+
+   leaderboards                 Leaderboard[]
+   contest_to_challenge_mapping Contest_to_Challenge_mapping[]
 }
 
-model ContestToChallengeMapping {
-   id          String       @id @default(uuid())
-   contestId   String
-   challengeId String
-   submissions Submission[]
-   index       Int
-   contest     Contest      @relation(fields: [contestId], references: [id], onDelete: Cascade)
-   challenge   Challege     @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+model Contest_to_Challenge_mapping {
+   id           String       @id @default(uuid())
+   position     Int
+   contest_id   String
+   challenge_id String
+   submissions  Submission[]
 
-   @@unique([contestId, challengeId])
+   contest   Contest   @relation(fields: [contest_id], references: [id], onDelete: Cascade)
+   challenge Challenge @relation(fields: [challenge_id], references: [id], onDelete: Cascade)
+
+   @@unique([contest_id, challenge_id])
+   @@unique([contest_id, position])
 }
 
-model Challege {
-   id                        String                      @id @default(uuid())
-   title                     String
-   notionDocId               String
-   maxPoints                 Int
-   contestToChallengeMapping ContestToChallengeMapping[]
+model Challenge {
+   id            String @id @default(uuid())
+   title         String @unique
+   max_pts       Int
+   challenge_doc String
+
+   contest_to_challenge_mapping Contest_to_Challenge_mapping[]
 }
 
 model Submission {
-   id                          String                    @id @default(uuid())
-   submission                  String
-   contestId                   String
-   challengeId                 String
-   points                      Int
-   userId                      String
-   user                        User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-   createdAt                   DateTime                  @default(now())
-   contestToChallengeMappingId String
-   contestToChallengeMapping   ContestToChallengeMapping @relation(fields: [contestToChallengeMappingId], references: [id], onDelete: Cascade)
+   id         String   @id @default(uuid())
+   points     Int
+   submission String
+   language   Language
+   status     Status
+   feedback   String?
+   user_id    String
+   created_at DateTime @default(now())
+
+   user                            User                         @relation(fields: [user_id], references: [id])
+   contest_to_challenge_mapping_id String
+   contest_to_challenge_mapping    Contest_to_Challenge_mapping @relation(fields: [contest_to_challenge_mapping_id], references: [id], onDelete: Cascade)
+
+   @@index([user_id])
+   @@index([contest_to_challenge_mapping_id])
 }
 
 model Leaderboard {
-   id        String  @id @default(uuid())
-   contestId String
-   userId    String
-   rank      Int
-   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-   contest   Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+   id         String @id @default(uuid())
+   rank       Int
+   contest_id String
+   user_id    String
 
-   @@unique([contestId, userId])
+   contest Contest @relation(fields: [contest_id], references: [id], onDelete: Cascade)
+   user    User    @relation(fields: [user_id], references: [id])
+
+   @@unique([contest_id, user_id])
+   @@unique([contest_id, rank])
 }
