@@ -1,102 +1,132 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
+import Link from "next/link";
+import { SignUpButton } from "@clerk/nextjs";
 import styles from "./page.module.css";
-
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.dev/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <div className={styles.container}>
+      {/* Hero Section */}
+      <main className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.title}>
+            The Operating System for <br />
+            <span className={styles.titleHighlight}>Technical Hiring</span>
+          </h1>
+          <p className={styles.subtitle}>
+            Assess, interview, and hire top developers with the most advanced coding platform.
+            Used by leading engineering teams worldwide.
+          </p>
+          <div className={styles.ctaGroup}>
+            <SignUpButton mode="modal">
+              <button className={styles.primaryButton}>
+                Start Hiring
+              </button>
+            </SignUpButton>
+            <Link href="/challenges" className={styles.secondaryButton}>
+              Take a Challenge
+            </Link>
+          </div>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
       </main>
+
+      {/* Value Proposition / Features */}
+      <section className={styles.features}>
+        <h2 className={styles.sectionTitle}>
+          Why Devforces?
+        </h2>
+        <p className={styles.sectionSubtitle}>
+          Built for scale, security, and developer experience.
+        </p>
+        
+        <div className={styles.grid}>
+          <FeatureCard 
+            title="Standardized Assessments" 
+            text="Create consistent, unbiased technical assessments that predict job performance. Validated by thousands of hires."
+            icon={<AssessmentIcon />}
+          />
+          <FeatureCard 
+            title="Real-World Environment" 
+            text="A fully configured IDE that supports 40+ languages, frameworks, and tools. Developers feel right at home."
+            icon={<TerminalIcon />}
+          />
+          <FeatureCard 
+            title="Actionable Insights" 
+            text="Go beyond pass/fail. Get deep insights into candidate code quality, efficiency, and problem-solving patterns."
+            icon={<ChartIcon />}
+          />
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className={styles.ctaSection}>
+        <h2 className={styles.ctaTitle}>Ready to transform your hiring?</h2>
+        <p className={styles.ctaText}>
+          Join thousands of companies building better teams with Devforces.
+        </p>
+        <SignUpButton mode="modal">
+          <button className={styles.primaryButton}>
+            Get Started for Free
+          </button>
+        </SignUpButton>
+      </section>
+
+      {/* Footer */}
       <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.dev?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.dev →
-        </a>
+        <div className={styles.footerContent}>
+          <div>
+            &copy; {new Date().getFullYear()} Devforces Inc. All rights reserved.
+          </div>
+          <div className={styles.footerLinks}>
+            <Link href="/privacy" className={styles.footerLink}>Privacy</Link>
+            <Link href="/terms" className={styles.footerLink}>Terms</Link>
+            <Link href="/contact" className={styles.footerLink}>Contact Support</Link>
+          </div>
+        </div>
       </footer>
     </div>
+  );
+}
+
+function FeatureCard({ title, text, icon }: { title: string; text: string; icon: React.ReactNode }) {
+  return (
+    <div className={styles.card}>
+      <div className={styles.iconWrapper}>
+        {icon}
+      </div>
+      <h3 className={styles.cardTitle}>{title}</h3>
+      <p className={styles.cardText}>{text}</p>
+    </div>
+  );
+}
+
+// Professional Icons
+function AssessmentIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+  );
+}
+
+function TerminalIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="4 17 10 11 4 5"></polyline>
+      <line x1="12" y1="19" x2="20" y2="19"></line>
+    </svg>
+  );
+}
+
+function ChartIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"></line>
+      <line x1="12" y1="20" x2="12" y2="4"></line>
+      <line x1="6" y1="20" x2="6" y2="14"></line>
+    </svg>
   );
 }

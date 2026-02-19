@@ -1,0 +1,431 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Hero Section */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  padding: 6rem 0;
+  align-items: center;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.gradient {
+  display: block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #666;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.ctaGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.primaryBtn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.secondaryBtn {
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondaryBtn:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* Hero Stats */
+.heroStats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+}
+
+.statNumber {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #667eea;
+  line-height: 1;
+}
+
+.statLabel {
+  display: block;
+  margin-top: 0.5rem;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Features Section */
+.features {
+  padding: 6rem 0;
+  text-align: center;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  color: #1a1a1a;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.featureCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 2.5rem;
+  border-radius: 16px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.featureIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.featureCard h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #1a1a1a;
+}
+
+.featureCard p {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Candidate Stats Section */
+.candidateStats {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  margin: 0 -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.metricCard {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.metricHeader h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.metricScore {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.progressBar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+  transition: width 1s ease-out;
+}
+
+.metricCard p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Contests Section */
+.contests {
+  padding: 6rem 0;
+}
+
+.contestList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contestCard {
+  background: white;
+  border: 2px solid #e5e7eb;
+  padding: 2rem;
+  border-radius: 12px;
+  position: relative;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+
+.contestCard:hover {
+  transform: translateX(8px);
+  border-color: #667eea;
+}
+
+.contestBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #ef4444;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.contestCard h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+  padding-right: 80px;
+}
+
+.contestCard > p {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.contestMeta {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.contestMeta span {
+  color: #667eea;
+  font-weight: 500;
+}
+
+/* CTA Section */
+.ctaSection {
+  text-align: center;
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  margin: 0 -2rem;
+  color: white;
+}
+
+.ctaSection h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.ctaSection > p {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    text-align: center;
+  }
+
+  .heroContent {
+    align-items: center;
+  }
+
+  .subtitle {
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: 3rem;
+  }
+
+  .heroStats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .statCard {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  .title {
+    font-size: 2.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.75rem;
+  }
+
+  .ctaGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ctaGroup button {
+    width: 100%;
+  }
+
+  .heroStats {
+    flex-direction: column;
+  }
+
+  .contestMeta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .contestCard h3 {
+    padding-right: 0;
+    margin-top: 2rem;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .title,
+  .sectionTitle,
+  .featureCard h3,
+  .metricHeader h3,
+  .contestCard h3 {
+    color: #f9fafb;
+  }
+
+  .subtitle,
+  .featureCard p,
+  .metricCard p,
+  .contestCard > p {
+    color: #9ca3af;
+  }
+
+  .statCard {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  }
+
+  .statLabel {
+    color: #9ca3af;
+  }
+
+  .featureCard,
+  .metricCard,
+  .contestCard {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .candidateStats {
+    background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+  }
+
+  .progressBar {
+    background: #374151;
+  }
+}
