@@ -13,7 +13,11 @@ export default function ResumeUpload() {
         const form_data = new FormData();
         form_data.append("file", file);
 
-        const res = await axios.post(`${process.env.BACKEND_URL}/v1/user/resume/upload-url`, { form_data });
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/upload-url`, form_data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
 
         if(res.data.success){
             console.log("done")

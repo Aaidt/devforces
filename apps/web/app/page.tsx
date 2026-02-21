@@ -21,7 +21,7 @@ export default function Home() {
                 Start Hiring
               </button>
             </SignUpButton>
-            <Link href="/resume_upload" className="bg-transparent text-[#ededed] px-8 py-3.5 rounded font-semibold text-base border border-white/20 cursor-pointer transition-colors hover:border-[#ededed] hover:bg-white/5 no-underline flex items-center justify-center">
+            <Link href="/ResumeUpload" className="bg-transparent text-[#ededed] px-8 py-3.5 rounded font-semibold text-base border border-white/20 cursor-pointer transition-colors hover:border-[#ededed] hover:bg-white/5 no-underline flex items-center justify-center">
               upload resume
             </Link>
           </div>
