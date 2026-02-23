@@ -1,11 +1,13 @@
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { r2 } from "@/lib/r2"
 import { Webhook } from "svix"
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { prismaClient } from "@repo/db/prismaClient"
+import { Variables } from "../index";
 
-const userRouter = new Hono();
+const userRouter = new Hono<{ Variables: Variables }>();
 
 userRouter.post("/resume/upload_url", async (c) => {
     const { filename, content_type } = await c.req.json();
@@ -24,6 +26,17 @@ userRouter.post("/resume/upload_url", async (c) => {
 
 userRouter.post("/resume/confirm", async (c) => {
     const { key } = await c.req.json();
+    const user_id = c.get('user_id');
+
+    try{
+        await prismaClient.user.update({
+            where: { clerk_id: user_id },
+            data: { resume_obj_key: key }
+        });
+        return c.json({ success: true }, 200);
+    }catch(e){
+        return c.json({ success: false, error: 'Server error: ' + e}, 500);
+    }
 
 })
 
@@ -89,6 +102,6 @@ userRouter.post("/webhook/clerk", async (c) => {
       console.error('Webhook error:', err);
       return c.text('Verification failed', 400);
     }
-  })
+})
 
 export default userRouter;
