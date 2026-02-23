@@ -14,7 +14,6 @@ app.use('/*', cors({
   exposeHeaders: ['X-Custom']
 }))
 
-
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })

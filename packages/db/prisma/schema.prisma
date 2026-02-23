@@ -13,13 +13,13 @@ enum Role {
 }
 
 enum Language {
-  javascript
-  typescript
-  python
-  java
-  go
-  csharp
-  php
+   javascript
+   typescript
+   python
+   java
+   go
+   csharp
+   php
 }
 
 enum Status {
@@ -30,19 +30,27 @@ enum Status {
 }
 
 model User {
-   id          String   @id @default(uuid())
-   profile_pic String
-   resume_url  String?
-   gh_url      String
-   lc_url      String?
-   cf_url      String?
-   created_at  DateTime @default(now())
-   updated_at  DateTime @updatedAt
+   clerk_id       String   @id @unique
+   email          String   @unique
+   email_verified Boolean?
+   first_name     String
+   last_name      String
+   phone          String?
+   profile_pic    String?
+   bio            String?
+   resume_obj_key String?
+   gh_url         String?
+   lc_url         String?
+   cf_url         String?
+   created_at     DateTime @default(now())
+   updated_at     DateTime @updatedAt
 
    role Role
 
    leaderboards Leaderboard[]
    submissions  Submission[]
+
+   @@index([clerk_id])
 }
 
 model Contest {
@@ -88,7 +96,7 @@ model Submission {
    user_id    String
    created_at DateTime @default(now())
 
-   user                            User                         @relation(fields: [user_id], references: [id])
+   user                            User                         @relation(fields: [user_id], references: [clerk_id])
    contest_to_challenge_mapping_id String
    contest_to_challenge_mapping    Contest_to_Challenge_mapping @relation(fields: [contest_to_challenge_mapping_id], references: [id], onDelete: Cascade)
 
@@ -103,7 +111,7 @@ model Leaderboard {
    user_id    String
 
    contest Contest @relation(fields: [contest_id], references: [id], onDelete: Cascade)
-   user    User    @relation(fields: [user_id], references: [id])
+   user    User    @relation(fields: [user_id], references: [clerk_id])
 
    @@unique([contest_id, user_id])
    @@unique([contest_id, rank])
