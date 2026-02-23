@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "workers",
   "main": "src/index.ts",
-  "compatibility_date": "2026-02-21"
+  "compatibility_date": "2026-02-21",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
@@ -15,12 +15,12 @@
   //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   //   }
   // ],
-  // "r2_buckets": [
-  //   {
-  //     "binding": "MY_BUCKET",
-  //     "bucket_name": "my-bucket"
-  //   }
-  // ],
+  "r2_buckets": [
+    {
+      "binding": "RESUME_BUCKET",
+      "bucket_name": "resume"
+    }
+  ],
   // "d1_databases": [
   //   {
   //     "binding": "MY_DB",
