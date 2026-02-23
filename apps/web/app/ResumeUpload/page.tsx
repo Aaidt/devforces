@@ -22,16 +22,20 @@ export default function ResumeUpload() {
         const form_data = new FormData();
         form_data.append("file", file);
 
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/upload_url`, form_data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        });
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/upload_url`, 
+            JSON.stringify({
+                filename: file.name,
+                content_type: file.type
+            }), { headers: { "Content-Type": "application/json" } });
 
-        if(res.data.success){
-            console.log("done")
+        const { url, key } = await res.data;
+
+        const response = await axios.put(url, file, { headers: { "Content-Type": file.type }})
+        if(response.status === 200){
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/confirm`, { key });
+            alert("resume uploaded");
         }else{
-            console.log("not done");
+            alert("resume not uploaded");
         }
     }
 

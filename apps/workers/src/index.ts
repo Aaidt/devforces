@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import userRouter from "./routes/user"
+import adminRouter from "./routes/admin"
 
 const app = new Hono()
 
@@ -19,5 +20,6 @@ app.get('/', (c) => {
 })
 
 app.route("/v1/user", userRouter)
+app.route("/v1/admin", adminRouter)
 
 export default app

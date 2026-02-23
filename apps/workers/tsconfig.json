@@ -8,6 +8,10 @@
     "lib": [
       "ESNext"
     ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
   },
