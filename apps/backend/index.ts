@@ -4,6 +4,7 @@ import adminRouter from "./routes/admin";
 import cors from "cors";
 import { Webhook } from "svix";
 import { prismaClient } from "@repo/db/prismaClient";
+import { userMiddleware } from "./middleware/user";
 
 const app = express();
 
@@ -11,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/v1/admin", adminRouter);
-app.use("/v1/user", userRouter);
+app.use("/v1/user", userMiddleware, userRouter);
 
 app.post("/webhook/clerk", async (req, res) => {
     const payload = req.body;

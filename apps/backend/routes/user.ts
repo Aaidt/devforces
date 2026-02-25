@@ -6,58 +6,67 @@ import { prismaClient } from "@repo/db/prismaClient";
 
 const userRouter = Router();
 
+const BUCKET_NAME = process.env.BUCKET_NAME as string;
+
 userRouter.post("/resume/upload_url", async (req, res) => {
+    const { filename, content_type } = req.body;
+    const key = `resumes/${req.user_id}-${Date.now()}-${filename}`
+
     try {
-        const { filename, content_type } = req.body;
-        const key = `resume/${Math.random().toString(36).substring(2, 15)}-${filename}`;
         const command = new PutObjectCommand({
-            Bucket: "resume",
+            Bucket: BUCKET_NAME,
             Key: key,
             ContentType: content_type
-        });
-        const url = await getSignedUrl(r2, command, { expiresIn: 60 });
-        res.json({ url, key });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server error: " + error });
+        })
+
+        const url = await getSignedUrl(r2, command, { expiresIn: 60 })
+        res.status(200).json({ url, key })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Server error: " + err })
     }
 });
 
 userRouter.post("/resume/confirm", async (req, res) => {
-    try{
-        const { key } = req.body;
-        const user_id = req.user_id;
+    const { key } = req.body;
+    const user_id = req.user_id
+    try {
         await prismaClient.user.update({
             where: { clerk_id: user_id },
             data: { resume_obj_key: key }
         });
-        res.status(200).json({ success: true });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ error: "Server error: " + error });
+        res.status(200).json({ success: true })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Server error: " + err })
     }
 });
 
 userRouter.get("/resume", async (req, res) => {
     const user_id = req.user_id;
-    const user = await prismaClient.user.findUnique({
-        where: { clerk_id: user_id },
-        select: { resume_obj_key: true }
-    });
-    if(!user?.resume_obj_key){
-        res.status(404).json({ error: "User has no resume" });
+    try {
+        const user = await prismaClient.user.findUnique({
+            where: { clerk_id: user_id },
+            select: { resume_obj_key: true }
+        });
+        if (!user?.resume_obj_key) res.status(404).json({ error: "User has no resume" });
+
+        const key = user.resume_obj_key;
+        const command = new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key
+        });
+        const response = await r2.send(command);
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="resume.pdf"`,
+            'Content-Length': response.ContentLength
+        });
+        (response.Body as any).pipe(res);
+    } catch (err) {
+        console.log("error: " + err);
+        res.status(500).json({ message: "server error: " + err })
     }
-    const key = user.resume_obj_key;
-    const resume = await r2.send(new GetObjectCommand({
-        Bucket: "resume",
-        Key: key
-    }));
-    if(!resume) {
-        res.status(404).json({ error: "File missing in R2Bucket." });
-        return;
-    }
-    const filename = key.split("-")[1];
-    res.status(200).json({ resume: resume.Body, filename: filename });
 });
 
 export default userRouter;
