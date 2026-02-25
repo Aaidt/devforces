@@ -2,6 +2,8 @@
 
 import Image from "next/image"
 import { useState, useEffect } from "react"
+import axios from "axios"
+import { useAuth } from "@clerk/nextjs"
 
 export default function CandidateDetails() {
   const [firstName, setFirstName] = useState("")
@@ -13,6 +15,8 @@ export default function CandidateDetails() {
   const [lcUrl, setLcUrl] = useState("")
   const [cfUrl, setCfUrl] = useState("")
 
+  const { getToken } = useAuth();
+
   // Handle image preview cleanup
   useEffect(() => {
     if (!pic) return
@@ -21,8 +25,16 @@ export default function CandidateDetails() {
     return () => URL.revokeObjectURL(objectUrl)
   }, [pic])
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    const token = await getToken();
+    await axios.post(`${process.env.BACKEND_URL}/v1/user/candidate-details`, {
+        firstName, lastName, phone, pic, ghUrl, lcUrl, cfUrl
+    }, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    })
   }
 
   return (

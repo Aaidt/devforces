@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { response, Router } from "express";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
@@ -9,18 +9,24 @@ const userRouter = Router();
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
 userRouter.post("/candidate-details", async (req, res) => {
-    const { gh_url, lc_url, cf_url } = req.body;
+    const { firstName, lastName, email, phone, pic, ghUrl, lcUrl, cfUrl } = req.body;
     const user_id = req.user_id;
 
     try{
-        await prismaClient.user.update({
+        const response = await prismaClient.user.update({
             where: { clerk_id: user_id},
             data: {
-                gh_url,
-                lc_url,
-                cf_url
+                first_name: firstName,
+                last_name: lastName,
+                phone: phone,
+                email: email,
+                profile_pic: pic,
+                gh_url: ghUrl,
+                lc_url: lcUrl,
+                cf_url: cfUrl
             }
         })
+        res.status(200).json({ message: `${response.clerk_id} updated successfully` })            
     }catch(err){
         console.log("err: " + err);
         res.status(500).json({ message: "Server error: " + err })
