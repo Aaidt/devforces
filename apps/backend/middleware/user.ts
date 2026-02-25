@@ -36,7 +36,7 @@ export const userMiddleware = async (req: Request, res: Response, next: NextFunc
                 update: {},
                 create: {
                     clerk_id: decoded.sub,
-                    email: decoded.email || "",
+                    email: `${decoded.sub}@gmail.com`,
                     first_name: "",
                     last_name: "",
                     role: "user"
@@ -44,6 +44,7 @@ export const userMiddleware = async (req: Request, res: Response, next: NextFunc
             })
         }catch(err){
             res.status(500).json({ message: "Server error: db upsert failed" + err });
+            return;
         }
         next();
     } catch (error) {
