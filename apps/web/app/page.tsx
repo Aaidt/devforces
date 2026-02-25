@@ -1,131 +1,256 @@
+"use client"
+
 import Link from "next/link";
 import { SignUpButton } from "@clerk/nextjs";
+import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] font-sans overflow-x-hidden flex flex-col">
-      {/* Hero Section */}
-      <main className="pt-32 pb-20 px-8 bg-[#0a0a0a] border-b border-white/10 flex flex-col items-center justify-center text-center">
-        <div className="max-w-[900px] w-full">
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-[#ededed] tracking-tighter">
-            The Operating System for <br />
-            <span className="text-green-500">Technical Hiring</span>
-          </h1>
-          <p className="text-xl text-zinc-400 mb-10 max-w-[700px] mx-auto leading-relaxed">
-            Assess, interview, and hire top developers with the most advanced coding platform.
-            Used by leading engineering teams worldwide.
-          </p>
-          <div className="flex gap-4 justify-center flex-col sm:flex-row">
-            <SignUpButton mode="modal">
-              <button className="bg-green-500 text-black px-8 py-3.5 rounded font-semibold text-base border-none cursor-pointer transition-colors hover:bg-green-600">
-                Start Hiring
-              </button>
-            </SignUpButton>
-            <Link href="/ResumeUpload" className="bg-transparent text-[#ededed] px-8 py-3.5 rounded font-semibold text-base border border-white/20 cursor-pointer transition-colors hover:border-[#ededed] hover:bg-white/5 no-underline flex items-center justify-center">
-              upload resume
-            </Link>
-          </div>
-        </div>
-      </main>
+    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
 
-      {/* Value Proposition / Features */}
-      <section className="py-24 px-8 bg-[#0a0a0a] max-w-[1200px] mx-auto w-full">
-        <h2 className="text-3xl font-semibold mb-4 text-center">
-          Why Devforces?
-        </h2>
-        <p className="text-center text-zinc-400 mb-16 text-lg">
-          Built for scale, security, and developer experience.
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <FeatureCard 
-            title="Standardized Assessments" 
-            text="Create consistent, unbiased technical assessments that predict job performance. Validated by thousands of hires."
-            icon={<AssessmentIcon />}
-          />
-          <FeatureCard 
-            title="Real-World Environment" 
-            text="A fully configured IDE that supports 40+ languages, frameworks, and tools. Developers feel right at home."
-            icon={<TerminalIcon />}
-          />
-          <FeatureCard 
-            title="Actionable Insights" 
-            text="Go beyond pass/fail. Get deep insights into candidate code quality, efficiency, and problem-solving patterns."
-            icon={<ChartIcon />}
-          />
-        </div>
-      </section>
+      {/* Animated Gradient Background */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_20%,rgba(34,197,94,0.15),transparent_40%)] animate-pulse" />
 
-      {/* Bottom CTA */}
-      <section className="bg-[#171717] py-24 px-8 text-center border-t border-white/10">
-        <h2 className="text-4xl font-bold mb-6">Ready to transform your hiring?</h2>
-        <p className="text-zinc-400 mb-10 text-xl max-w-[600px] mx-auto">
-          Join thousands of companies building better teams with Devforces.
-        </p>
+      <Navbar />
+      <Hero />
+      <ProductShowcase />
+      <Features />
+      <Pricing />
+      <CTA />
+      <Footer />
+    </div>
+  );
+}
+
+function Navbar() {
+  return (
+    <header className="fixed top-0 w-full backdrop-blur-xl bg-black/40 border-b border-white/10 z-50">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="text-xl font-semibold tracking-tight">
+          Devforces
+        </div>
+
+        <div className="flex items-center gap-6 text-sm">
+          <Link href="/ResumeUpload" className="text-white/70 hover:text-white transition">
+            Upload Resume
+          </Link>
+
+          <SignUpButton mode="modal">
+            <button className="bg-green-500 hover:bg-green-400 text-black px-5 py-2 rounded-lg font-medium transition">
+              Get Started
+            </button>
+          </SignUpButton>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="pt-40 pb-32 px-6 text-center max-w-5xl mx-auto">
+
+      <motion.h1
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-5xl md:text-7xl font-bold leading-tight tracking-tight mb-8"
+      >
+        The Operating System <br />
+        for <span className="text-green-500">Technical Hiring</span>
+      </motion.h1>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="text-xl text-white/60 max-w-2xl mx-auto mb-12"
+      >
+        Structured evaluations. Real coding environments. Measurable skill signals.
+      </motion.p>
+
+      <div className="flex flex-col sm:flex-row justify-center gap-5">
         <SignUpButton mode="modal">
-          <button className="bg-green-500 text-black px-8 py-3.5 rounded font-semibold text-base border-none cursor-pointer transition-colors hover:bg-green-600">
-            Get Started for Free
+          <button className="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-green-500/20 transition">
+            Start Hiring
           </button>
         </SignUpButton>
-      </section>
 
-      {/* Footer */}
-      <footer className="bg-black py-16 px-8 border-t border-white/10 text-sm text-neutral-500">
-        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div>
-            &copy; {new Date().getFullYear()} Devforces Inc. All rights reserved.
-          </div>
-          <div className="flex gap-8">
-            <Link href="/privacy" className="text-zinc-400 transition-colors hover:text-white no-underline">Privacy</Link>
-            <Link href="/terms" className="text-zinc-400 transition-colors hover:text-white no-underline">Terms</Link>
-            <Link href="/contact" className="text-zinc-400 transition-colors hover:text-white no-underline">Contact Support</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-function FeatureCard({ title, text, icon }: { title: string; text: string; icon: React.ReactNode }) {
-  return (
-    <div className="bg-[#171717] border border-white/10 rounded-lg p-8 transition-all hover:border-green-500 hover:-translate-y-0.5">
-      <div className="w-12 h-12 flex items-center justify-center bg-green-500/10 rounded-md text-green-500 mb-6">
-        {icon}
+        <Link
+          href="/ResumeUpload"
+          className="px-8 py-4 rounded-xl border border-white/20 hover:border-white hover:bg-white/5 transition text-lg"
+        >
+          Upload Resume
+        </Link>
       </div>
-      <h3 className="text-xl font-semibold mb-4 text-[#ededed]">{title}</h3>
-      <p className="text-zinc-400 leading-relaxed text-base">{text}</p>
+    </section>
+  );
+}
+
+function ProductShowcase() {
+  return (
+    <section className="py-24 px-6 max-w-6xl mx-auto text-center">
+
+      <motion.div
+        initial={{ opacity: 0, y: 80 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl"
+      >
+        <div className="aspect-video bg-linear-to-br from-zinc-900 to-zinc-800 rounded-xl flex items-center justify-center text-white/40 text-lg">
+          Product Dashboard Screenshot
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+function Features() {
+  return (
+    <section className="py-28 px-6 max-w-7xl mx-auto">
+
+      <div className="text-center mb-20">
+        <h2 className="text-4xl font-bold mb-6">
+          Built for Precision Hiring
+        </h2>
+        <p className="text-white/60 text-lg max-w-2xl mx-auto">
+          Remove bias. Standardize evaluation. Identify top talent with measurable signals.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-10">
+        <FeatureCard
+          title="Standardized Assessments"
+          text="Consistent, role-specific technical evaluations that predict real performance."
+        />
+        <FeatureCard
+          title="Real Coding Environment"
+          text="Fully configured IDE with multi-language support."
+        />
+        <FeatureCard
+          title="Deep Candidate Insights"
+          text="Analyze architecture, efficiency, and debugging patterns."
+        />
+      </div>
+    </section>
+  );
+}
+
+function FeatureCard({ title, text }: { title: string; text: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      className="bg-white/5 border border-white/10 rounded-2xl p-10 hover:border-green-500/40 transition"
+    >
+      <h3 className="text-xl font-semibold mb-4">{title}</h3>
+      <p className="text-white/60 leading-relaxed">{text}</p>
+    </motion.div>
+  );
+}
+
+function Pricing() {
+  return (
+    <section className="py-28 px-6 bg-white/5 border-y border-white/10">
+
+      <div className="text-center mb-20">
+        <h2 className="text-4xl font-bold mb-6">
+          Simple Pricing
+        </h2>
+        <p className="text-white/60 text-lg">
+          Start free. Scale as you grow.
+        </p>
+      </div>
+
+      <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
+
+        <PriceCard
+          title="Starter"
+          price="$0"
+          features={["5 assessments", "Basic analytics", "Email support"]}
+        />
+
+        <PriceCard
+          title="Growth"
+          price="$49"
+          highlighted
+          features={["Unlimited assessments", "Advanced insights", "Priority support"]}
+        />
+
+        <PriceCard
+          title="Enterprise"
+          price="Custom"
+          features={["Custom integrations", "Dedicated support", "SLA"]}
+        />
+
+      </div>
+    </section>
+  );
+}
+
+function PriceCard({
+  title,
+  price,
+  features,
+  highlighted
+}: {
+  title: string;
+  price: string;
+  features: string[];
+  highlighted?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl p-10 border ${
+        highlighted
+          ? "border-green-500 bg-green-500/10"
+          : "border-white/10 bg-white/5"
+      }`}
+    >
+      <h3 className="text-xl font-semibold mb-4">{title}</h3>
+      <div className="text-4xl font-bold mb-6">{price}</div>
+
+      <ul className="space-y-3 text-white/60 mb-8">
+        {features.map((f) => (
+          <li key={f}>• {f}</li>
+        ))}
+      </ul>
+
+      <button className="w-full bg-white text-black py-3 rounded-lg font-medium hover:bg-white/90 transition">
+        Choose Plan
+      </button>
     </div>
   );
 }
 
-// Professional Icons
-function AssessmentIcon() {
+function CTA() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-      <line x1="16" y1="13" x2="8" y2="13"></line>
-      <line x1="16" y1="17" x2="8" y2="17"></line>
-      <polyline points="10 9 9 9 8 9"></polyline>
-    </svg>
+    <section className="py-32 text-center">
+
+      <h2 className="text-5xl font-bold mb-6">
+        Ready to transform hiring?
+      </h2>
+
+      <p className="text-white/60 text-xl mb-12">
+        Join modern engineering teams using Devforces.
+      </p>
+
+      <SignUpButton mode="modal">
+        <button className="bg-green-500 hover:bg-green-400 text-black px-10 py-5 rounded-2xl text-lg font-semibold shadow-xl shadow-green-500/20 transition">
+          Get Started Free
+        </button>
+      </SignUpButton>
+    </section>
   );
 }
 
-function TerminalIcon() {
+function Footer() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="4 17 10 11 4 5"></polyline>
-      <line x1="12" y1="19" x2="20" y2="19"></line>
-    </svg>
-  );
-}
-
-function ChartIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="20" x2="18" y2="10"></line>
-      <line x1="12" y1="20" x2="12" y2="4"></line>
-      <line x1="6" y1="20" x2="6" y2="14"></line>
-    </svg>
+    <footer className="border-t border-white/10 py-16 px-6 text-sm text-white/40 text-center">
+      © {new Date().getFullYear()} Devforces Inc.
+    </footer>
   );
 }

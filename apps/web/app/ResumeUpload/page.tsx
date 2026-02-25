@@ -2,69 +2,78 @@
 
 import axios from "axios";
 import { useState, useEffect } from "react"
-import { useUser } from "@clerk/nextjs"
-import { useAuth } from "@clerk/nextjs"
+import { useUser, useAuth } from "@clerk/nextjs"
 import { useRouter } from "next/navigation";
 
 export default function ResumeUpload() {
     const [file, setFile] = useState<File | null>(null);
-    const [download, setDownload] = useState<boolean>(false)
+    const [uploading, setUploading] = useState(false);
+    const [success, setSuccess] = useState(false);
+
     const { isLoaded, isSignedIn } = useUser();
-    const router = useRouter();
     const { getToken } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
-        if(isLoaded && !isSignedIn){
+        if (isLoaded && !isSignedIn) {
             router.replace("/");
-        };
-    }, [isLoaded, isSignedIn, router])
-    
-    if(!isLoaded){
-        return <div>loading...</div>
+        }
+    }, [isLoaded, isSignedIn, router]);
+
+    if (!isLoaded) {
+        return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>
     }
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        const token = await getToken({ template: "backend" });
-
         if (!file) return;
 
-        const form_data = new FormData();
-        form_data.append("file", file);
+        setUploading(true);
+        setSuccess(false);
 
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/upload_url`,
-            JSON.stringify({
+        const token = await getToken({ template: "backend" });
+
+        const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/upload_url`,
+            {
                 filename: file.name,
                 content_type: file.type
-            }), {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             }
+        );
+
+        const { url, key } = res.data;
+
+        const response = await axios.put(url, file, {
+            headers: { "Content-Type": file.type }
         });
 
-        const { url, key } = await res.data;
-
-        const response = await axios.put(url, file, { headers: { "Content-Type": file.type } })
         if (response.status === 200) {
-            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/confirm`, { key }, {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-            alert("resume uploaded");
-        } else {
-            alert("resume not uploaded");
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/confirm`,
+                { key },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setSuccess(true);
         }
+
+        setUploading(false);
     }
 
     async function handleDownload() {
         const token = await getToken({ template: "backend" });
-        setDownload(true);
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/`, {
-            headers: { Authorization: `Bearer ${token}` },
-            responseType: "blob"
-        })
+
+        const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/`,
+            {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: "blob"
+            }
+        );
 
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
@@ -76,19 +85,57 @@ export default function ResumeUpload() {
         window.URL.revokeObjectURL(url);
     }
 
-    return <div className="pt-24 min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold">Resume Upload</h1><br />
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
 
-        <form onSubmit={(e) => handleSubmit(e)}>
-            <input type="file" name="file"
-                onChange={e => setFile(e.target.files?.[0] || null)}
-                className="border"
-                id="fileInput"
-            /><br />
-            <button type="submit" className="border">Upload</button>
-        </form>
+            <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
 
-        <button onClick={() => handleDownload()}>Download resume</button>
-        {download && <a download>Download Resume</a>}
-    </div>
+                <h1 className="text-2xl font-semibold text-white mb-6 text-center">
+                    Upload Your Resume
+                </h1>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <label
+                        htmlFor="fileInput"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-500 rounded-xl cursor-pointer hover:border-indigo-500 transition"
+                    >
+                        <span className="text-gray-300 text-sm">
+                            {file ? file.name : "Click to select PDF"}
+                        </span>
+                        <input
+                            id="fileInput"
+                            type="file"
+                            accept="application/pdf"
+                            className="hidden"
+                            onChange={(e) =>
+                                setFile(e.target.files?.[0] || null)
+                            }
+                        />
+                    </label>
+
+                    <button
+                        type="submit"
+                        disabled={uploading || !file}
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-600 text-white py-2 rounded-xl transition font-medium"
+                    >
+                        {uploading ? "Uploading..." : "Upload Resume"}
+                    </button>
+                </form>
+
+                <button
+                    onClick={handleDownload}
+                    className="w-full mt-4 border border-indigo-500 text-indigo-400 hover:bg-indigo-500 hover:text-white transition py-2 rounded-xl"
+                >
+                    Download Resume
+                </button>
+
+                {success && (
+                    <p className="text-green-400 text-sm mt-4 text-center">
+                        Resume uploaded successfully
+                    </p>
+                )}
+
+            </div>
+        </div>
+    );
 }
