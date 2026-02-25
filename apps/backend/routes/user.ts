@@ -8,6 +8,25 @@ const userRouter = Router();
 
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
+userRouter.post("/candidate-details", async (req, res) => {
+    const { gh_url, lc_url, cf_url } = req.body;
+    const user_id = req.user_id;
+
+    try{
+        await prismaClient.user.update({
+            where: { clerk_id: user_id},
+            data: {
+                gh_url,
+                lc_url,
+                cf_url
+            }
+        })
+    }catch(err){
+        console.log("err: " + err);
+        res.status(500).json({ message: "Server error: " + err })
+    }
+})
+
 userRouter.post("/resume/upload_url", async (req, res) => {
     const { filename, content_type } = req.body;
     const key = `resumes/${req.user_id}-${Date.now()}-${filename}`

@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react"
 import { useUser, useAuth } from "@clerk/nextjs"
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export default function ResumeUpload() {
     const [file, setFile] = useState<File | null>(null);
@@ -116,7 +116,7 @@ export default function ResumeUpload() {
                     <button
                         type="submit"
                         disabled={uploading || !file}
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-600 text-white py-2 rounded-xl transition font-medium"
+                        className="w-full cursor-pointer bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-600 text-white py-2 rounded-xl transition font-medium"
                     >
                         {uploading ? "Uploading..." : "Upload Resume"}
                     </button>
@@ -124,9 +124,18 @@ export default function ResumeUpload() {
 
                 <button
                     onClick={handleDownload}
-                    className="w-full mt-4 border border-indigo-500 text-indigo-400 hover:bg-indigo-500 hover:text-white transition py-2 rounded-xl"
+                    className="w-full mt-4 border cursor-pointer border-indigo-500 text-indigo-400 hover:bg-indigo-500 hover:text-white transition py-2 rounded-xl"
                 >
                     Download Resume
+                </button>
+
+                <button
+                    onClick={() => {
+                        redirect("/CandidateDetails")
+                    }}
+                    className="w-full mt-4 border cursor-pointer border-indigo-500 text-indigo-400 hover:bg-indigo-500 hover:text-white transition py-2 rounded-xl"
+                >
+                    Proceed
                 </button>
 
                 {success && (

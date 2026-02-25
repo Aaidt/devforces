@@ -38,7 +38,7 @@ model User {
    phone          String?
    profile_pic    String?
    bio            String?
-   resume_obj_key String?
+   resume_obj_key String?  
    gh_url         String?
    lc_url         String?
    cf_url         String?
