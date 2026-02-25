@@ -49,8 +49,10 @@ userRouter.get("/resume", async (req, res) => {
             where: { clerk_id: user_id },
             select: { resume_obj_key: true }
         });
-        if (!user?.resume_obj_key) res.status(404).json({ error: "User has no resume" });
-
+        if (!user?.resume_obj_key) {
+            res.status(404).json({ error: "User has no resume" });
+            return;
+        }
         const key = user.resume_obj_key;
         const command = new GetObjectCommand({
             Bucket: BUCKET_NAME,
