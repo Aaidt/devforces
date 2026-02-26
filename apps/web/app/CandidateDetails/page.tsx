@@ -5,6 +5,11 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import { useAuth } from "@clerk/nextjs"
 
+interface SubmitResponse {
+  url: string,
+  key: string
+}
+
 export default function CandidateDetails() {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
@@ -17,7 +22,6 @@ export default function CandidateDetails() {
 
   const { getToken } = useAuth();
 
-  // Handle image preview cleanup
   useEffect(() => {
     if (!pic) return
     const objectUrl = URL.createObjectURL(pic)
@@ -28,19 +32,47 @@ export default function CandidateDetails() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const token = await getToken();
-    await axios.post(`${process.env.BACKEND_URL}/v1/user/candidate-details`, {
-        firstName, lastName, phone, pic, ghUrl, lcUrl, cfUrl
-    }, {
+    try {
+      const { data: { url, key } } = await axios.post<SubmitResponse>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/candidate-details`, {
+        firstName, lastName, phone, pic_name: pic?.name, pic_type: pic?.type, ghUrl, lcUrl, cfUrl
+      }, {
         headers: {
-            "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`
         }
-    })
+      })
+      if (url) {
+        try {
+          const response = await axios.put(url, { pic }, {
+            headers: {
+              "Content-Type": pic?.type
+            }
+          })
+
+          if (response.status == 200) {
+            try {
+              await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/pic/confirm`, { key }, {
+                headers: {
+                  "Authorization": `Bearer ${token}`
+                }
+              })
+            } catch (err) {
+              console.log("Error updating user db with the obj_key: ", err);
+            }
+          }
+        } catch (err) {
+          console.log("Error storing profile_pic in R2: ", err);
+        }
+      }
+    } catch (err) {
+      console.log("Error updating user details...", err);
+    }
+
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] bg-[radial-gradient(circle_at_top,var(--tw-gradient-stops))] from-zinc-900 via-black to-black px-4 py-20">
       <div className="w-full max-w-2xl bg-zinc-900/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-        
+
         <header className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">
             Candidate Profile
@@ -49,7 +81,7 @@ export default function CandidateDetails() {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          
+
           {/* Section: Personal Info */}
           <section className="space-y-6">
             <div className="flex items-center gap-4 mb-4">
@@ -59,11 +91,11 @@ export default function CandidateDetails() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-5">
-              <InputField label="First Name" value={firstName} onChange={setFirstName} placeholder="John" />
-              <InputField label="Last Name" value={lastName} onChange={setLastName} placeholder="Doe" />
+              <InputField label="First Name*" value={firstName} onChange={setFirstName} placeholder="John" required />
+              <InputField label="Last Name*" value={lastName} onChange={setLastName} placeholder="Doe" required />
             </div>
 
-            <InputField label="Phone Number" value={phone} onChange={setPhone} placeholder="+91 98765 43210" type="tel" />
+            <InputField label="Phone Number*" value={phone} onChange={setPhone} placeholder="+91 98765 43210" type="tel" required />
 
             {/* Profile Pic - Improved UX */}
             <div className="flex flex-col items-center sm:flex-row gap-6 p-4 rounded-2xl bg-white/2 border border-white/5">
@@ -73,18 +105,18 @@ export default function CandidateDetails() {
                     <Image src={preview} alt="preview" fill className="object-cover" />
                   ) : (
                     <div className="flex items-center justify-center h-full text-zinc-600">
-                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeWidth="2" strokeLinecap="round"/></svg>
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeWidth="2" strokeLinecap="round" /></svg>
                     </div>
                   )}
                 </div>
               </div>
-              
+
               <div className="flex-1 space-y-1">
-                <label className="text-sm font-medium text-zinc-200">Profile Picture</label>
+                <label className="text-sm font-medium text-zinc-200">Profile Picture*</label>
                 <p className="text-xs text-zinc-500 mb-3">JPG, PNG or WebP. Max 2MB.</p>
                 <label className="inline-block px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-semibold text-white cursor-pointer transition">
                   Choose Image
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => setPic(e.target.files?.[0] || null)} />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => setPic(e.target.files?.[0] || null)} required />
                 </label>
               </div>
             </div>
@@ -99,9 +131,9 @@ export default function CandidateDetails() {
             </div>
 
             <div className="grid gap-4">
-              <InputField label="GitHub" value={ghUrl} onChange={setGhUrl} placeholder="github.com/username" />
-              <InputField label="LeetCode" value={lcUrl} onChange={setLcUrl} placeholder="leetcode.com/username" />
-              <InputField label="Codeforces" value={cfUrl} onChange={setCfUrl} placeholder="codeforces.com/profile/username" />
+              <InputField label="GitHub*" value={ghUrl} onChange={setGhUrl} placeholder="github.com/username" required />
+              <InputField label="LeetCode (optional)" value={lcUrl} onChange={setLcUrl} placeholder="leetcode.com/username" />
+              <InputField label="Codeforces (optional)" value={cfUrl} onChange={setCfUrl} placeholder="codeforces.com/profile/username" />
             </div>
           </section>
 

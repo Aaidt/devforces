@@ -30,20 +30,20 @@ enum Status {
 }
 
 model User {
-   clerk_id       String   @id @unique
-   email          String   @unique
-   email_verified Boolean?
-   first_name     String
-   last_name      String
-   phone          String?
-   profile_pic    String?
-   bio            String?
-   resume_obj_key String?  
-   gh_url         String?
-   lc_url         String?
-   cf_url         String?
-   created_at     DateTime @default(now())
-   updated_at     DateTime @updatedAt
+   clerk_id        String   @id @unique
+   email           String   @unique
+   email_verified  Boolean?
+   first_name      String
+   last_name       String
+   phone           String?
+   profile_pic_key String?
+   bio             String?
+   resume_obj_key  String?
+   gh_url          String?
+   lc_url          String?
+   cf_url          String?
+   created_at      DateTime @default(now())
+   updated_at      DateTime @updatedAt
 
    role Role
 

@@ -1,4 +1,4 @@
-import { response, Router } from "express";
+import { Router } from "express";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
@@ -6,36 +6,64 @@ import { prismaClient } from "@repo/db/prismaClient";
 
 const userRouter = Router();
 
+let user_keys: Record<string, string> = {};
+
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
 userRouter.post("/candidate-details", async (req, res) => {
-    const { firstName, lastName, email, phone, pic, ghUrl, lcUrl, cfUrl } = req.body;
+    const { firstName, lastName, email, phone, pic_name, pic_type, ghUrl, lcUrl, cfUrl } = req.body;
     const user_id = req.user_id;
 
-    try{
+    const key = `profile_pics/${crypto.randomUUID()}-${pic_name}`;
+
+    const command = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        ContentType: pic_type
+    });
+
+    const url = await getSignedUrl(r2, command, { expiresIn: 60 });
+
+    try {
         const response = await prismaClient.user.update({
-            where: { clerk_id: user_id},
+            where: { clerk_id: user_id },
             data: {
                 first_name: firstName,
                 last_name: lastName,
                 phone: phone,
                 email: email,
-                profile_pic: pic,
                 gh_url: ghUrl,
                 lc_url: lcUrl,
                 cf_url: cfUrl
             }
         })
-        res.status(200).json({ message: `${response.clerk_id} updated successfully` })            
-    }catch(err){
+        res.status(200).json({ message: `${response.clerk_id} updated successfully`, url, key })
+    } catch (err) {
         console.log("err: " + err);
-        res.status(500).json({ message: "Server error: " + err })
+        res.status(500).json({ message: "Server error while updating users details: " + err })
+    }
+})
+
+userRouter.post("/pic/confirm", async (req, res) => {
+    const { key } = req.body;
+
+    try{
+        await prismaClient.user.update({
+            where: { clerk_id: req.user_id },
+            data: {
+                profile_pic_key: key
+            }
+        })
+        res.status(200).json({ message: "Users profile_pic_key updated succesfuly" })
+    }catch(err){
+        console.log("Server error while updating users profile_pic_key: ", err);
+        res.status(500).json({ message: "Server error while updating users profile_pic_key: ", err })
     }
 })
 
 userRouter.post("/resume/upload_url", async (req, res) => {
     const { filename, content_type } = req.body;
-    const key = `resumes/${req.user_id}-${Date.now()}-${filename}`
+    const key = `resumes/${req.user_id}-${crypto.randomUUID()}-${filename}`
 
     try {
         const command = new PutObjectCommand({
