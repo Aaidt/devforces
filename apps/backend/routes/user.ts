@@ -6,7 +6,7 @@ import { prismaClient } from "@repo/db/prismaClient";
 
 const userRouter = Router();
 
-let user_keys: Record<string, string> = {};
+let user_keys: Map<string, Map<"resume" | "profile_pic", string>> = new Map();
 
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
@@ -15,6 +15,12 @@ userRouter.post("/candidate-details", async (req, res) => {
     const user_id = req.user_id;
 
     const key = `profile_pics/${crypto.randomUUID()}-${pic_name}`;
+    let user_map = user_keys.get(user_id);
+    if (!user_map) {
+        user_map = new Map();
+        user_keys.set(user_id, user_map);
+    }
+    user_map.set("profile_pic", key);
 
     const command = new PutObjectCommand({
         Bucket: BUCKET_NAME,
@@ -45,17 +51,27 @@ userRouter.post("/candidate-details", async (req, res) => {
 })
 
 userRouter.post("/pic/confirm", async (req, res) => {
-    const { key } = req.body;
+    // const { key } = req.body;
+    const user_id = req.user_id;
 
-    try{
+    const user_map = user_keys.get(user_id);
+    if (!user_map?.has("profile_pic")) {
+        throw new Error(`No profile_pic keys found for ${user_id}`);
+    }
+    const key = user_map.get("profile_pic");
+
+    try {
         await prismaClient.user.update({
             where: { clerk_id: req.user_id },
             data: {
                 profile_pic_key: key
             }
         })
+
+        user_map.delete("profile_pic");
+
         res.status(200).json({ message: "Users profile_pic_key updated succesfuly" })
-    }catch(err){
+    } catch (err) {
         console.log("Server error while updating users profile_pic_key: ", err);
         res.status(500).json({ message: "Server error while updating users profile_pic_key: ", err })
     }
@@ -63,7 +79,15 @@ userRouter.post("/pic/confirm", async (req, res) => {
 
 userRouter.post("/resume/upload_url", async (req, res) => {
     const { filename, content_type } = req.body;
+    const user_id = req.user_id;
+
     const key = `resumes/${req.user_id}-${crypto.randomUUID()}-${filename}`
+    let user_map = user_keys.get(user_id);
+    if (!user_map) {
+        user_map = new Map();
+        user_keys.set(user_id, user_map);
+    }
+    user_map.set("resume", key);
 
     try {
         const command = new PutObjectCommand({
@@ -81,13 +105,23 @@ userRouter.post("/resume/upload_url", async (req, res) => {
 });
 
 userRouter.post("/resume/confirm", async (req, res) => {
-    const { key } = req.body;
+    // const { key } = req.body;
     const user_id = req.user_id
+
+    const user_map = user_keys.get(user_id);
+    if(!user_map?.has("resume")){
+        throw new Error(`No profile_pic keys found for ${user_id}`);
+    }
+    const key = user_map?.get("resume")
+    
     try {
         await prismaClient.user.update({
             where: { clerk_id: user_id },
             data: { resume_obj_key: key }
         });
+
+        user_map.delete("resume");
+
         res.status(200).json({ success: true })
     } catch (err) {
         console.log(err);

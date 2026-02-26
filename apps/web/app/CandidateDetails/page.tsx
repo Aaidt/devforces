@@ -5,11 +5,6 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import { useAuth } from "@clerk/nextjs"
 
-interface SubmitResponse {
-  url: string,
-  key: string
-}
-
 export default function CandidateDetails() {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
@@ -33,7 +28,7 @@ export default function CandidateDetails() {
     e.preventDefault()
     const token = await getToken();
     try {
-      const { data: { url, key } } = await axios.post<SubmitResponse>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/candidate-details`, {
+      const { data: { url } } = await axios.post<{ url: string }>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/candidate-details`, {
         firstName, lastName, phone, pic_name: pic?.name, pic_type: pic?.type, ghUrl, lcUrl, cfUrl
       }, {
         headers: {
@@ -50,7 +45,7 @@ export default function CandidateDetails() {
 
           if (response.status == 200) {
             try {
-              await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/pic/confirm`, { key }, {
+              await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/pic/confirm`, {
                 headers: {
                   "Authorization": `Bearer ${token}`
                 }

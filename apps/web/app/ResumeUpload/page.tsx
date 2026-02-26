@@ -46,7 +46,7 @@ export default function ResumeUpload() {
             }
         );
 
-        const { url, key } = res.data;
+        const { url } = res.data;
 
         const response = await axios.put(url, file, {
             headers: { "Content-Type": file.type }
@@ -55,7 +55,6 @@ export default function ResumeUpload() {
         if (response.status === 200) {
             await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/confirm`,
-                { key },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setSuccess(true);
