@@ -28,8 +28,8 @@ export default function CandidateDetails() {
     e.preventDefault()
     const token = await getToken();
     try {
-      const { data: { url } } = await axios.post<{ url: string }>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/candidate-details`, {
-        firstName, lastName, phone, pic_name: pic?.name, pic_type: pic?.type, ghUrl, lcUrl, cfUrl
+      const { data: { url } } = await axios.post<{ url: string }>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/profile_pic/url`, {
+        pic_name: pic?.name, pic_type: pic?.type
       }, {
         headers: {
           "Authorization": `Bearer ${token}`
@@ -37,7 +37,7 @@ export default function CandidateDetails() {
       })
       if (url) {
         try {
-          const response = await axios.put(url, { pic }, {
+          const response = await axios.put(url, pic, {
             headers: {
               "Content-Type": pic?.type
             }
@@ -45,7 +45,8 @@ export default function CandidateDetails() {
 
           if (response.status == 200) {
             try {
-              await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/pic/confirm`, {
+              await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/details/confirm`,
+                { firstName, lastName, phone, ghUrl, lcUrl, cfUrl }, {
                 headers: {
                   "Authorization": `Bearer ${token}`
                 }

@@ -10,8 +10,8 @@ let user_keys: Map<string, Map<"resume" | "profile_pic", string>> = new Map();
 
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
-userRouter.post("/candidate-details", async (req, res) => {
-    const { firstName, lastName, email, phone, pic_name, pic_type, ghUrl, lcUrl, cfUrl } = req.body;
+userRouter.post("/profile_pic/url", async (req, res) => {
+    const { pic_name, pic_type} = req.body;
     const user_id = req.user_id;
 
     const key = `profile_pics/${crypto.randomUUID()}-${pic_name}`;
@@ -30,28 +30,11 @@ userRouter.post("/candidate-details", async (req, res) => {
 
     const url = await getSignedUrl(r2, command, { expiresIn: 60 });
 
-    try {
-        const response = await prismaClient.user.update({
-            where: { clerk_id: user_id },
-            data: {
-                first_name: firstName,
-                last_name: lastName,
-                phone: phone,
-                email: email,
-                gh_url: ghUrl,
-                lc_url: lcUrl,
-                cf_url: cfUrl
-            }
-        })
-        res.status(200).json({ message: `${response.clerk_id} updated successfully`, url, key })
-    } catch (err) {
-        console.log("err: " + err);
-        res.status(500).json({ message: "Server error while updating users details: " + err })
-    }
+    res.status(200).json({ url })
 })
 
-userRouter.post("/pic/confirm", async (req, res) => {
-    // const { key } = req.body;
+userRouter.post("/details/confirm", async (req, res) => {
+    const { firstName, lastName, phone, email, ghUrl, lcUrl, cfUrl } = req.body;
     const user_id = req.user_id;
 
     const user_map = user_keys.get(user_id);
@@ -64,7 +47,14 @@ userRouter.post("/pic/confirm", async (req, res) => {
         await prismaClient.user.update({
             where: { clerk_id: req.user_id },
             data: {
-                profile_pic_key: key
+                profile_pic_key: key,
+                first_name: firstName,
+                last_name: lastName,
+                phone: phone,
+                email: email,
+                gh_url: ghUrl,
+                lc_url: lcUrl,
+                cf_url: cfUrl
             }
         })
 
