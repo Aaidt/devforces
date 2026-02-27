@@ -74,7 +74,7 @@ userRouter.post("/details/confirm", async (req, res) => {
         await redis.hdel(`pending:user:${user_id}:profile_pic`, "profile_pic");
         console.log("pending:user deleted from redis");
 
-        res.status(200).json({ message: "Users profile_pic_key updated succesfuly" })
+        res.status(200).json({ message: "Users profile_pic_key updated succesfuly", success: true })
     } catch (err) {
         console.log("Server error while updating users profile_pic_key: ", err);
         res.status(500).json({ message: "Server error while updating users profile_pic_key: ", err })

@@ -25,44 +25,65 @@ export default function CandidateDetails() {
   }, [pic])
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const token = await getToken();
-    try {
-      const { data: { url } } = await axios.post<{ url: string }>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/profile_pic/url`, {
-        pic_name: pic?.name, pic_type: pic?.type
-      }, {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      })
-      if (url) {
-        try {
-          const response = await axios.put(url, pic, {
-            headers: {
-              "Content-Type": pic?.type
-            }
-          })
+    e.preventDefault();
 
-          if (response.status == 200) {
-            try {
-              await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/details/confirm`,
-                { firstName, lastName, phone, ghUrl, lcUrl, cfUrl }, {
-                headers: {
-                  "Authorization": `Bearer ${token}`
-                }
-              })
-            } catch (err) {
-              console.log("Error updating user db with the obj_key: ", err);
-            }
-          }
-        } catch (err) {
-          console.log("Error storing profile_pic in R2: ", err);
-        }
-      }
-    } catch (err) {
-      console.log("Error updating user details...", err);
+    if (!pic) {
+      console.log("No profile picture selected");
+      return;
     }
 
+    const token = await getToken();
+    if (!token) {
+      console.log("No auth token");
+      return;
+    }
+
+    try {
+
+      const { data } = await axios.post<{ url: string }>(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/profile_pic/url`,
+        {
+          pic_name: pic.name,
+          pic_type: pic.type,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!data?.url) {
+        console.log("No URL returned from backend");
+        return;
+      }
+
+      await axios.put(data.url, pic, {
+        headers: {
+          "Content-Type": pic.type,
+        },
+      });
+
+      const confirmRes = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/details/confirm`,
+        { firstName, lastName, phone, ghUrl, lcUrl, cfUrl },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!confirmRes.data?.success) {
+        console.log("DB update failed");
+        return;
+      }
+
+      console.log("Profile updated successfully");
+
+    } catch (err) {
+      console.error("Profile submission failed:", err);
+    }
   }
 
   return (
@@ -144,21 +165,21 @@ export default function CandidateDetails() {
       </div>
     </div>
   )
-}
 
-function InputField({ label, value, onChange, placeholder, type = "text" }: any) {
-  return (
-    <div className="space-y-1.5 flex-1">
-      <label className="text-[13px] font-medium text-zinc-400 ml-1">
-        {label}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-zinc-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
-      />
-    </div>
-  )
+  function InputField({ label, value, onChange, placeholder, type = "text" }: any) {
+    return (
+      <div className="space-y-1.5 flex-1">
+        <label className="text-[13px] font-medium text-zinc-400 ml-1">
+          {label}
+        </label>
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full bg-zinc-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
+        />
+      </div>
+    )
+  }
 }
