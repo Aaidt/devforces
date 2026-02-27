@@ -34,29 +34,54 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a] text-[#ededed]`}>
-          <header className="flex justify-between items-center px-8 py-4 border-b border-white/10 bg-black/50 backdrop-blur-md fixed top-0 left-0 right-0 z-50 h-16">
-            <Link href="/" className="font-bold text-xl text-green-500 no-underline tracking-tighter">
-              Devforces
-            </Link>
-            <div className="flex gap-4 items-center">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="text-zinc-400 font-medium hover:text-zinc-200 transition-colors bg-transparent border-none cursor-pointer text-sm">
-                    Login
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="bg-green-500 text-black px-4 py-2 rounded font-semibold text-sm border-none cursor-pointer transition-colors hover:bg-green-600">
-                    Sign Up
-                  </button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-            </div>
-          </header>
-          {children}
+
+          <div className="fixed top-4 inset-x-0 z-50 flex justify-center px-4">
+            <header className="
+              flex justify-between items-center 
+              w-full max-w-5xl h-14 px-6
+              bg-zinc-900/40 backdrop-blur-md 
+              border border-white/5 rounded-2xl 
+              shadow-[0_8px_32px_rgba(0,0,0,0.5)]
+            ">
+
+              <Link href="/" className="font-bold text-lg text-green-500 tracking-tighter hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.4)] transition-all">
+                Devforces
+              </Link>
+
+              <div className="flex gap-5 items-center">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="text-zinc-400 font-medium hover:text-white transition-colors text-xs cursor-pointer">
+                      Login
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="
+                      bg-white text-black px-4 py-1.5 
+                      rounded-full font-bold text-xs 
+                      hover:bg-green-500 hover:text-white
+                      transition-all active:scale-95
+                    ">
+                      Sign Up
+                    </button>
+                  </SignUpButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton
+                    appearance={{
+                      elements: {
+                        userButtonAvatarBox: "w-8 h-8 border border-white/10"
+                      }
+                    }}
+                  />
+                </SignedIn>
+              </div>
+            </header>
+          </div>
+
+          <main className="pt-12">
+            {children}
+          </main>
         </body>
       </html>
     </ClerkProvider>

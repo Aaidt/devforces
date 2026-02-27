@@ -6,14 +6,16 @@ import axios from "axios"
 import { useAuth } from "@clerk/nextjs"
 
 export default function CandidateDetails() {
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [phone, setPhone] = useState("")
+  const [firstName, setFirstName] = useState<string>("")
+  const [lastName, setLastName] = useState<string>("")
+  const [phone, setPhone] = useState<string>("")
   const [pic, setPic] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-  const [ghUrl, setGhUrl] = useState("")
-  const [lcUrl, setLcUrl] = useState("")
-  const [cfUrl, setCfUrl] = useState("")
+  const [ghUrl, setGhUrl] = useState<string>("")
+  const [lcUrl, setLcUrl] = useState<string>("")
+  const [email, setEmail] = useState<string>("")
+  const [cfUrl, setCfUrl] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { getToken } = useAuth();
 
@@ -38,6 +40,7 @@ export default function CandidateDetails() {
       return;
     }
 
+    setLoading(true);
     try {
 
       const { data } = await axios.post<{ url: string }>(
@@ -83,103 +86,100 @@ export default function CandidateDetails() {
 
     } catch (err) {
       console.error("Profile submission failed:", err);
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] bg-[radial-gradient(circle_at_top,var(--tw-gradient-stops))] from-zinc-900 via-black to-black px-4 py-20">
-      <div className="w-full max-w-2xl bg-zinc-900/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+    <div className="min-h-screen py-12 flex items-center justify-center bg-[#0a0a0a] px-4">
 
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">
-            Candidate Profile
-          </h1>
-          <p className="text-zinc-400 text-sm">Fill in your professional details to get started.</p>
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.1),transparent_50%)] pointer-events-none" />
+
+      <div className="w-full max-w-3xl bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 md:p-12 shadow-2xl relative z-10">
+        <header className="text-center mb-10">
+          <h1 className="text-3xl font-bold text-white tracking-tight">Candidate Profile</h1>
+          <p className="text-zinc-500 text-xs uppercase tracking-widest mt-2">Professional Details</p>
         </header>
 
-        <form onSubmit={handleSubmit} className="space-y-10">
-
-          {/* Section: Personal Info */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-px flex-1 bg-white/10" />
-              <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">Personal Information</span>
-              <div className="h-px flex-1 bg-white/10" />
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex flex-col gap-8">
+            
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-white/90 border-b border-white/5 pb-2">Personal Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField label="First Name*" value={firstName} onChange={setFirstName} placeholder="John" required />
+                <InputField label="Last Name*" value={lastName} onChange={setLastName} placeholder="Doe" required />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField label="Email Address*" type="email" value={email} onChange={setEmail} placeholder="john@example.com" required />
+                <InputField label="Phone Number*" type="tel" value={phone} onChange={setPhone} placeholder="+91..." required />
+              </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-5">
-              <InputField label="First Name*" value={firstName} onChange={setFirstName} placeholder="John" required />
-              <InputField label="Last Name*" value={lastName} onChange={setLastName} placeholder="Doe" required />
-            </div>
-
-            <InputField label="Phone Number*" value={phone} onChange={setPhone} placeholder="+91 98765 43210" type="tel" required />
-
-            {/* Profile Pic - Improved UX */}
-            <div className="flex flex-col items-center sm:flex-row gap-6 p-4 rounded-2xl bg-white/2 border border-white/5">
-              <div className="relative group">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-zinc-800 border-2 border-dashed border-white/20 group-hover:border-emerald-500/50 transition-colors">
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-white/90 border-b border-white/5 pb-2">Profile Picture*</h2>
+              <div className="flex items-center gap-6 p-4 rounded-xl bg-white/5 border border-white/5">
+                <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-zinc-800 border border-white/10 flex-shrink-0">
                   {preview ? (
                     <Image src={preview} alt="preview" fill className="object-cover" />
                   ) : (
                     <div className="flex items-center justify-center h-full text-zinc-600">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeWidth="2" strokeLinecap="round" /></svg>
+                      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 4v16m8-8H4" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="flex-1 space-y-1">
-                <label className="text-sm font-medium text-zinc-200">Profile Picture*</label>
-                <p className="text-xs text-zinc-500 mb-3">JPG, PNG or WebP. Max 2MB.</p>
-                <label className="inline-block px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-semibold text-white cursor-pointer transition">
-                  Choose Image
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => setPic(e.target.files?.[0] || null)} required />
-                </label>
+                <div className="flex-1">
+                  <p className="text-sm text-zinc-400 mb-3 text-center md:text-left">Upload a professional photo for your profile.</p>
+                  <label className="block w-full md:w-max px-6 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-lg text-xs font-bold text-white cursor-pointer transition text-center">
+                    {pic ? "Change Photo" : "Upload Photo"}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setPic(e.target.files?.[0] || null)} />
+                  </label>
+                </div>
               </div>
             </div>
-          </section>
 
-          {/* Section: Links */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-px flex-1 bg-white/10" />
-              <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">Online Presence</span>
-              <div className="h-px flex-1 bg-white/10" />
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-white/90 border-b border-white/5 pb-2">Professional Links</h2>
+              <div className="space-y-6">
+                <InputField label="GitHub Profile*" value={ghUrl} onChange={setGhUrl} placeholder="https://github.com/your-username" required />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputField label="LeetCode" value={lcUrl} onChange={setLcUrl} placeholder="username" />
+                  <InputField label="Codeforces" value={cfUrl} onChange={setCfUrl} placeholder="username" />
+                </div>
+              </div>
             </div>
-
-            <div className="grid gap-4">
-              <InputField label="GitHub*" value={ghUrl} onChange={setGhUrl} placeholder="github.com/username" required />
-              <InputField label="LeetCode (optional)" value={lcUrl} onChange={setLcUrl} placeholder="leetcode.com/username" />
-              <InputField label="Codeforces (optional)" value={cfUrl} onChange={setCfUrl} placeholder="codeforces.com/profile/username" />
-            </div>
-          </section>
+          </div>
 
           <button
             type="submit"
-            className="w-full group relative overflow-hidden cursor-pointer bg-white text-black py-4 rounded-xl font-bold text-lg transition-all "
+            disabled={loading}
+            className="w-full bg-white cursor-pointer hover:bg-white/70 text-black py-4 rounded-xl font-bold text-sm transition-all active:scale-[0.98] disabled:bg-zinc-800 disabled:text-zinc-500 mt-6"
           >
-            <span className="relative z-10">Save Candidate Details</span>
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+            {loading ? "Saving Changes..." : "Save Profile Details"}
           </button>
         </form>
       </div>
     </div>
   )
+}
 
-  function InputField({ label, value, onChange, placeholder, type = "text" }: any) {
-    return (
-      <div className="space-y-1.5 flex-1">
-        <label className="text-[13px] font-medium text-zinc-400 ml-1">
-          {label}
-        </label>
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-zinc-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
-        />
-      </div>
-    )
-  }
+function InputField({ label, value, onChange, placeholder, type = "text", required = false }: any) {
+  return (
+    <div className="space-y-2">
+      <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">
+        {label}
+      </label>
+      <input
+        type={type}
+        value={value}
+        required={required}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-zinc-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 transition-all"
+      />
+    </div>
+  )
 }
