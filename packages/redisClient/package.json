@@ -1,9 +1,10 @@
 {
-  "name": "@repo/redisclient",
+  "name": "@repo/redisClient",
   "module": "index.ts",
   "type": "module",
+  "main": "./index.ts",
   "exports": {
-    "redisclient": "./index.ts"
+    "./redis-client": "./index.ts"
   },
   "private": true,
   "devDependencies": {

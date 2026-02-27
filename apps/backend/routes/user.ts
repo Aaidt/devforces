@@ -1,26 +1,28 @@
-import { Router } from "express";
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { response, Router } from "express";
+import { GetObjectCommand, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
 import { prismaClient } from "@repo/db/prismaClient";
+import { get_redisClient, disconnect_redisClient } from "@repo/redisClient/redis-client"
 
 const userRouter = Router();
-
-let user_keys: Map<string, Map<"resume" | "profile_pic", string>> = new Map();
+const redis = get_redisClient();
 
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
 userRouter.post("/profile_pic/url", async (req, res) => {
-    const { pic_name, pic_type} = req.body;
+    const { pic_name, pic_type } = req.body;
     const user_id = req.user_id;
 
     const key = `profile_pics/${crypto.randomUUID()}-${pic_name}`;
-    let user_map = user_keys.get(user_id);
-    if (!user_map) {
-        user_map = new Map();
-        user_keys.set(user_id, user_map);
-    }
-    user_map.set("profile_pic", key);
+
+    await redis
+        .pipeline()
+        .hset(`pending:user:${user_id}:profile_pic`, {
+            profile_pic: key
+        })
+        .expire(`pending:user:${user_id}:profile_pic`, 300)
+        .exec();
 
     const command = new PutObjectCommand({
         Bucket: BUCKET_NAME,
@@ -37,28 +39,40 @@ userRouter.post("/details/confirm", async (req, res) => {
     const { firstName, lastName, phone, email, ghUrl, lcUrl, cfUrl } = req.body;
     const user_id = req.user_id;
 
-    const user_map = user_keys.get(user_id);
-    if (!user_map?.has("profile_pic")) {
-        throw new Error(`No profile_pic keys found for ${user_id}`);
+    const key = await redis.hget(`pending:user:${user_id}:profile_pic`, "profile_pic");
+    if (!key) {
+        res.status(404).json({ message: `No key found for profile_pic obj of user: ${user_id}` });
+        return
     }
-    const key = user_map.get("profile_pic");
 
     try {
-        await prismaClient.user.update({
-            where: { clerk_id: req.user_id },
-            data: {
-                profile_pic_key: key,
-                first_name: firstName,
-                last_name: lastName,
-                phone: phone,
-                email: email,
-                gh_url: ghUrl,
-                lc_url: lcUrl,
-                cf_url: cfUrl
-            }
-        })
+        await r2.send(
+            new HeadObjectCommand({
+                Bucket: BUCKET_NAME,
+                Key: key
+            })
+        );
+        console.log("profile_pic exists in r2")
 
-        user_map.delete("profile_pic");
+        await prismaClient.$transaction(async (tx) => {
+            await tx.user.update({
+                where: { clerk_id: req.user_id },
+                data: {
+                    profile_pic_key: key,
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone: phone,
+                    email: email,
+                    gh_url: ghUrl,
+                    lc_url: lcUrl,
+                    cf_url: cfUrl
+                }
+            })
+        })
+        console.log("user updated in the db");
+
+        await redis.hdel(`pending:user:${user_id}:profile_pic`, "profile_pic");
+        console.log("pending:user deleted from redis");
 
         res.status(200).json({ message: "Users profile_pic_key updated succesfuly" })
     } catch (err) {
@@ -72,12 +86,12 @@ userRouter.post("/resume/upload_url", async (req, res) => {
     const user_id = req.user_id;
 
     const key = `resumes/${req.user_id}-${crypto.randomUUID()}-${filename}`
-    let user_map = user_keys.get(user_id);
-    if (!user_map) {
-        user_map = new Map();
-        user_keys.set(user_id, user_map);
-    }
-    user_map.set("resume", key);
+
+    await redis
+        .pipeline()
+        .hset(`pending:user:${user_id}:resume`, { resume: key })
+        .expire(`pending:user:${user_id}:resume`, 300)
+        .exec();
 
     try {
         const command = new PutObjectCommand({
@@ -87,7 +101,7 @@ userRouter.post("/resume/upload_url", async (req, res) => {
         })
 
         const url = await getSignedUrl(r2, command, { expiresIn: 60 })
-        res.status(200).json({ url, key })
+        res.status(200).json({ url })
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: "Server error: " + err })
@@ -95,22 +109,31 @@ userRouter.post("/resume/upload_url", async (req, res) => {
 });
 
 userRouter.post("/resume/confirm", async (req, res) => {
-    // const { key } = req.body;
     const user_id = req.user_id
 
-    const user_map = user_keys.get(user_id);
-    if(!user_map?.has("resume")){
-        throw new Error(`No profile_pic keys found for ${user_id}`);
+    const key = await redis.hget(`pending:user:${user_id}:resume`, "resume");
+    if (!key) {
+        res.status(404).json({ message: `No resume key found for user: ${user_id}` });
+        return;
     }
-    const key = user_map?.get("resume")
-    
+
     try {
+        await r2.send(
+            new HeadObjectCommand({
+                Bucket: BUCKET_NAME,
+                Key: key
+            })
+        )
+        console.log("Confirmed resume obj key exists in R2");
+
         await prismaClient.user.update({
             where: { clerk_id: user_id },
             data: { resume_obj_key: key }
         });
+        console.log("user updated in the db");
 
-        user_map.delete("resume");
+        await redis.hdel(`pending:user:${user_id}:resume`, "resume");
+        console.log("pending:user for resume deleted from redis");
 
         res.status(200).json({ success: true })
     } catch (err) {

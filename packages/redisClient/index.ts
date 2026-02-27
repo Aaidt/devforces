@@ -2,7 +2,7 @@ import Redis from "ioredis"
 
 let redis: Redis | null = null;
 
-export function get_redis_client(): Redis {
+export function get_redisClient(): Redis {
     if(!redis){
         redis = new Redis({
             host: process.env.REDIS_HOST,
@@ -17,7 +17,7 @@ export function get_redis_client(): Redis {
     return redis
 }
 
-export async function disconnect_redis_client(){
+export async function disconnect_redisClient(){
     if(redis){
         await redis.quit();
         redis = null;
