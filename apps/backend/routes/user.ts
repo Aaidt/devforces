@@ -3,7 +3,7 @@ import { GetObjectCommand, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
 import { prismaClient } from "@repo/db/prismaClient";
-import { get_redisClient, disconnect_redisClient } from "@repo/redisClient/redis-client"
+import { get_redisClient } from "@repo/redisClient/redis-client"
 
 const userRouter = Router();
 const redis = get_redisClient();
@@ -18,19 +18,16 @@ userRouter.post("/profile_pic/url", async (req, res) => {
 
     await redis
         .pipeline()
-        .hset(`pending:user:${user_id}:profile_pic`, {
-            profile_pic: key
-        })
+        .set(`pending:user:${user_id}:profile_pic`, key)
         .expire(`pending:user:${user_id}:profile_pic`, 300)
         .exec();
 
     const command = new PutObjectCommand({
         Bucket: BUCKET_NAME,
-        Key: key,
-        ContentType: pic_type
+        Key: key
     });
 
-    const url = await getSignedUrl(r2, command, { expiresIn: 60 });
+    const url = await getSignedUrl(r2, command, { expiresIn: 180 });
 
     res.status(200).json({ url })
 })
@@ -39,7 +36,7 @@ userRouter.post("/details/confirm", async (req, res) => {
     const { firstName, lastName, phone, email, ghUrl, lcUrl, cfUrl } = req.body;
     const user_id = req.user_id;
 
-    const key = await redis.hget(`pending:user:${user_id}:profile_pic`, "profile_pic");
+    const key = await redis.get(`pending:user:${user_id}:profile_pic`);
     if (!key) {
         res.status(404).json({ message: `No key found for profile_pic obj of user: ${user_id}` });
         return
@@ -71,7 +68,7 @@ userRouter.post("/details/confirm", async (req, res) => {
         })
         console.log("user updated in the db");
 
-        await redis.hdel(`pending:user:${user_id}:profile_pic`, "profile_pic");
+        await redis.del(`pending:user:${user_id}:profile_pic`);
         console.log("pending:user deleted from redis");
 
         res.status(200).json({ message: "Users profile_pic_key updated succesfuly", success: true })
@@ -82,25 +79,24 @@ userRouter.post("/details/confirm", async (req, res) => {
 })
 
 userRouter.post("/resume/upload_url", async (req, res) => {
-    const { filename, content_type } = req.body;
+    const { filename } = req.body;
     const user_id = req.user_id;
 
     const key = `resumes/${req.user_id}-${crypto.randomUUID()}-${filename}`
 
     await redis
         .pipeline()
-        .hset(`pending:user:${user_id}:resume`, { resume: key })
+        .set(`pending:user:${user_id}:resume`, key)
         .expire(`pending:user:${user_id}:resume`, 300)
         .exec();
 
     try {
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,
-            Key: key,
-            ContentType: content_type
+            Key: key
         })
 
-        const url = await getSignedUrl(r2, command, { expiresIn: 60 })
+        const url = await getSignedUrl(r2, command, { expiresIn: 180 })
         res.status(200).json({ url })
     } catch (err) {
         console.log(err);
@@ -111,7 +107,7 @@ userRouter.post("/resume/upload_url", async (req, res) => {
 userRouter.post("/resume/confirm", async (req, res) => {
     const user_id = req.user_id
 
-    const key = await redis.hget(`pending:user:${user_id}:resume`, "resume");
+    const key = await redis.get(`pending:user:${user_id}:resume`);
     if (!key) {
         res.status(404).json({ message: `No resume key found for user: ${user_id}` });
         return;
@@ -132,7 +128,7 @@ userRouter.post("/resume/confirm", async (req, res) => {
         });
         console.log("user updated in the db");
 
-        await redis.hdel(`pending:user:${user_id}:resume`, "resume");
+        await redis.del(`pending:user:${user_id}:resume`);
         console.log("pending:user for resume deleted from redis");
 
         res.status(200).json({ success: true })

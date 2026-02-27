@@ -51,7 +51,7 @@ app.post("/webhook/clerk", async (req, res) => {
                 update: {
                     first_name: first_name,
                     last_name: last_name,
-                    profile_pic: image_url || null,
+                    profile_pic_key: image_url || null,
                     email,
                     phone: phone_numbers?.[0]?.phone_number || null,
                     email_verified

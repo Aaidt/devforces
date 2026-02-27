@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react"
 import { useUser, useAuth } from "@clerk/nextjs"
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function ResumeUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -35,10 +35,7 @@ export default function ResumeUpload() {
 
     const res = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resume/upload_url`,
-      {
-        filename: file.name,
-        content_type: file.type
-      },
+      { filename: file.name },
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -49,7 +46,7 @@ export default function ResumeUpload() {
     const { url } = res.data;
 
     const response = await axios.put(url, file, {
-      headers: { "Content-Type": file.type }
+      headers: { "Content-Type": "application/pdf" }
     });
 
     if (response.status === 200) {
@@ -63,7 +60,7 @@ export default function ResumeUpload() {
     setUploading(false);
   }
 
-  async function handleDownload() {
+  async function  handleDownload() {
     const token = await getToken({ template: "backend" });
 
     const response = await axios.get(
@@ -120,22 +117,33 @@ export default function ResumeUpload() {
             </button>
           </form>
 
-          <div className="pt-6 border-t border-white/10">
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={handleDownload} className="px-3 cursor-pointer py-2.5 bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 rounded-lg text-xs font-semibold text-white transition">
-                Preview
-              </button>
-              <button onClick={() => redirect("/CandidateDetails")} className="px-3 cursor-pointer   py-2.5 bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 rounded-lg text-xs font-semibold text-white transition">
-                Details
-              </button>
-            </div>
-          </div>
-
           {success && (
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
-              <p className="text-emerald-400 text-xs font-medium">Resume uploaded successfully</p>
+            <div className="pt-6 border-t border-white/10 animate-in fade-in slide-in-from-top-2 duration-500">
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={handleDownload} 
+                  className="px-3 cursor-pointer py-2.5 bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 rounded-lg text-xs font-semibold text-white transition flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Preview Resume
+                </button>
+                <button 
+                  onClick={() => router.push("/CandidateDetails")} 
+                  className="px-3 cursor-pointer py-2.5 bg-white hover:bg-zinc-100 border border-white/5 rounded-lg text-xs font-semibold text-black transition flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  Next: Details
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
+
+
         </div>
       </div>
     </div>

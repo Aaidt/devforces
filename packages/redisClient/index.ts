@@ -5,8 +5,8 @@ let redis: Redis | null = null;
 export function get_redisClient(): Redis {
     if(!redis){
         redis = new Redis({
-            host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT),
+            host: process.env.REDIS_HOST || "localhost",
+            port: Number(process.env.REDIS_PORT) || 6379,
             lazyConnect: true
         });
 
