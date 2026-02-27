@@ -11,7 +11,7 @@ const redis = get_redisClient();
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
 userRouter.post("/profile_pic/url", async (req, res) => {
-    const { pic_name, pic_type } = req.body;
+    const { pic_name } = req.body;
     const user_id = req.user_id;
 
     const key = `profile_pics/${crypto.randomUUID()}-${pic_name}`;
