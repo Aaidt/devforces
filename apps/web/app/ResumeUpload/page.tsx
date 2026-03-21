@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import { Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUser, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -140,10 +141,11 @@ export default function ResumeUpload() {
 
             <button
               type="submit"
-              disabled={uploading || !file}
-              className="w-full bg-white cursor-pointer text-black py-3 rounded-xl font-bold text-sm transition-all disabled:bg-zinc-800 disabled:text-zinc-500"
+              disabled={uploading || !file || success}
+              className={`w-full bg-white cursor-pointer text-black py-3 rounded-xl 
+                font-bold text-sm transition-all disabled:bg-zinc-800 disabled:text-zinc-500 ${success ? "disabled" : ""}`}
             >
-              {uploading ? "Uploading..." : "Upload Resume"}
+              {uploading ? "Uploading..." : success ? "Uploaded" : "Upload Resume"}
             </button>
           </form>
 
@@ -154,7 +156,7 @@ export default function ResumeUpload() {
                   onClick={handleDownload}
                   className="px-3 cursor-pointer py-2.5 bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 rounded-lg text-xs font-semibold text-white transition flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
-                  <svg
+                  {/* <svg
                     className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
@@ -172,14 +174,14 @@ export default function ResumeUpload() {
                       strokeWidth="2"
                       d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                     />
-                  </svg>
-                  Download Resume
+                  </svg> */}
+                  <Download className="w-4 h-4" /> Preview
                 </button>
                 <button
-                  onClick={() => router.push("/CandidateDetails")}
+                  onClick={() => router.push("/")}
                   className="px-3 cursor-pointer py-2.5 bg-white hover:bg-zinc-100 border border-white/5 rounded-lg text-xs font-semibold text-black transition flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
-                  Next: Details
+                  Finish
                   <svg
                     className="w-4 h-4"
                     fill="none"

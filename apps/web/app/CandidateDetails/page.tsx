@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function CandidateDetails() {
   const [firstName, setFirstName] = useState<string>("");
@@ -11,6 +12,7 @@ export default function CandidateDetails() {
   const [phone, setPhone] = useState<string>("");
   const [pic, setPic] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [bio, setBio] = useState<string>("");
   const [ghUrl, setGhUrl] = useState<string>("");
   const [lcUrl, setLcUrl] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -18,6 +20,7 @@ export default function CandidateDetails() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { getToken } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!pic) return;
@@ -68,7 +71,7 @@ export default function CandidateDetails() {
 
       const confirmRes = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/details/confirm`,
-        { firstName, lastName, phone, email, ghUrl, lcUrl, cfUrl },
+        { firstName, lastName, phone, email, bio, ghUrl, lcUrl, cfUrl },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -82,6 +85,7 @@ export default function CandidateDetails() {
       }
 
       console.log("Profile updated successfully");
+      router.push("/ResumeUpload");
     } catch (err) {
       console.error("Profile submission failed:", err);
     } finally {
@@ -194,6 +198,18 @@ export default function CandidateDetails() {
 
             <div className="space-y-6">
               <h2 className="text-lg font-semibold text-white/90 border-b border-white/5 pb-2">
+                Bio*
+              </h2>
+              <TextAreaField
+                label="Bio"
+                value={bio}
+                onChange={setBio}
+                placeholder="Tell us a little about yourself..."
+              />
+            </div>
+
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-white/90 border-b border-white/5 pb-2">
                 Professional Links
               </h2>
               <div className="space-y-6">
@@ -255,6 +271,30 @@ function InputField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full bg-zinc-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 transition-all"
+      />
+    </div>
+  );
+}
+
+function TextAreaField({
+  // label,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+}: any) {
+  return (
+    <div className="space-y-2">
+      {/* <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">
+        {label}
+      </label> */}
+      <textarea
+        value={value}
+        required={required}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={4}
+        className="w-full bg-zinc-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 transition-all resize-y min-h-[100px]"
       />
     </div>
   );

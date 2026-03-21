@@ -9,6 +9,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import Link from "next/link";
+import { NavbarUser } from "@/components/NavbarUser";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -67,13 +68,7 @@ export default function RootLayout({
                   </SignUpButton>
                 </SignedOut>
                 <SignedIn>
-                  <UserButton
-                    appearance={{
-                      elements: {
-                        userButtonAvatarBox: "w-8 h-8 border border-white/10"
-                      }
-                    }}
-                  />
+                  <NavbarUser />
                 </SignedIn>
               </div>
             </header>

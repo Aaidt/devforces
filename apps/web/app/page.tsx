@@ -42,16 +42,16 @@ function Hero() {
 
       <div className="flex flex-col sm:flex-row justify-center gap-5">
         <SignUpButton mode="modal">
-          <button className="bg-green-500 cursor-pointer hover:bg-green-400 text-black px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-green-500/20 transition">
+          <button className="bg-green-500 cursor-pointer hover:bg-green-400 text-black px-4 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-green-500/20 transition">
             Start Hiring
           </button>
         </SignUpButton>
 
         <Link
-          href="/ResumeUpload"
-          className="px-8 py-4 rounded-xl border border-white/10 hover:bg-white/5 transition text-lg"
+          href="/CandidateDetails"
+          className="px-4 py-3 cursor-pointer rounded-xl border border-white/10 hover:bg-white/5 transition text-lg"
         >
-          Upload Resume
+          Get started
         </Link>
       </div>
     </section>
@@ -61,7 +61,7 @@ function Hero() {
 function ProductShowcase() {
   return (
     <section className="py-24 px-6 max-w-6xl mx-auto text-center">
-      <motion.div
+      <motion.div 
         initial={{ opacity: 0, y: 80 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}

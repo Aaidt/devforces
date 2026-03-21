@@ -14,14 +14,16 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.996.0",
+    "@aws-sdk/client-s3": "^3.1014.0",
     "@aws-sdk/s3-request-presigner": "^3.996.0",
+    "@clerk/backend": "^3.2.2",
+    "@repo/db": "*",
+    "@repo/redisClient": "*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "cors": "^2.8.6",
-    "@repo/db": "*",
-    "@repo/redisClient": "*",
     "express": "^5.2.1",
+    "svix": "^1.89.0",
     "zod": "^4.3.6"
   }
 }

@@ -4,6 +4,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
 import { prismaClient } from "@repo/db/prismaClient";
 import { get_redisClient } from "@repo/redisClient/redis-client"
+import { userDetailsSchema, profilePicSchema, resumeSchema } from "types"
 
 const userRouter = Router();
 const redis = get_redisClient();
@@ -11,7 +12,14 @@ const redis = get_redisClient();
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
 userRouter.post("/profile_pic/url", async (req, res) => {
-   const { pic_name, pic_type } = req.body;
+   const result = profilePicSchema.safeParse(req.body);
+   if (!result.success) {
+      console.log("Invalid profile pic details");
+      res.status(400).json({ message: "Invalid profile pic details" });
+      return;
+   }
+
+   const { pic_name, pic_type } = result.data;
    const user_id = req.user_id;
 
    const key = `profile_pics/${crypto.randomUUID()}-${pic_name}`;
@@ -36,7 +44,14 @@ userRouter.post("/profile_pic/url", async (req, res) => {
 })
 
 userRouter.post("/details/confirm", async (req, res) => {
-   const { firstName, lastName, phone, email, ghUrl, lcUrl, cfUrl } = req.body;
+   const result = userDetailsSchema.safeParse(req.body);
+   if (!result.success) {
+      console.log("Invalid user details");
+      res.status(400).json({ message: "Invalid user details" });
+      return;
+   }
+
+   const { firstName, lastName, phone, email, bio, ghUrl, lcUrl, cfUrl } = result.data;
    const user_id = req.user_id;
 
    const key = await redis.get(`pending:user:${user_id}:profile_pic`);
@@ -64,6 +79,7 @@ userRouter.post("/details/confirm", async (req, res) => {
             last_name: lastName,
             phone: phone,
             email: email,
+            bio: bio,
             gh_url: ghUrl,
             lc_url: lcUrl,
             cf_url: cfUrl
@@ -74,7 +90,7 @@ userRouter.post("/details/confirm", async (req, res) => {
       await redis.del(`pending:user:${user_id}:profile_pic`);
       console.log("pending:user deleted from redis");
 
-      res.status(200).json({ message: "Users profile_pic_key updated succesfuly", success: true })
+      res.status(200).json({ message: "Candidates details updated succesfuly", success: true })
    } catch (err) {
       console.log("Server error while updating users profile_pic_key: ", err);
       res.status(500).json({ message: "Server error: Failed to update users profile_pic_key: ", err })
@@ -82,7 +98,14 @@ userRouter.post("/details/confirm", async (req, res) => {
 })
 
 userRouter.post("/resume/upload_url", async (req, res) => {
-   const { filename, fileType } = req.body;
+   const result = resumeSchema.safeParse(req.body);
+   if(!result.success){
+      console.log("Invalid resume details");
+      res.status(400).json({ message: "Invalid resume details" });
+      return;
+   }
+
+   const { filename, fileType } = result.data;
    const user_id = req.user_id;
    console.log("filename, fileType: ", filename, fileType);
 
@@ -172,6 +195,38 @@ userRouter.get("/resume", async (req, res) => {
    } catch (err) {
       console.log("error: " + err);
       res.status(500).json({ message: "Server error: Failed to get resume, err: " + err })
+   }
+});
+
+userRouter.get("/me", async (req, res) => {
+   const user_id = req.user_id;
+   try {
+      const user = await prismaClient.user.findUnique({
+         where: { clerk_id: user_id },
+         select: { first_name: true, profile_pic_key: true }
+      });
+      
+      if (!user) {
+         res.status(404).json({ message: "User not found" });
+         return;
+      }
+      
+      let profilePicUrl = null;
+      if (user.profile_pic_key) {
+         const command = new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: user.profile_pic_key
+         });
+         profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
+      }
+
+      res.status(200).json({
+         firstName: user.first_name,
+         profilePicUrl
+      });
+   } catch (err) {
+      console.log("Error fetching me endpoint: ", err);
+      res.status(500).json({ message: "Server error fetching user" });
    }
 });
 
