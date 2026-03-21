@@ -200,11 +200,21 @@ userRouter.get("/resume", async (req, res) => {
 
 userRouter.get("/me", async (req, res) => {
    const user_id = req.user_id;
+
    try {
-      const user = await prismaClient.user.findUnique({
-         where: { clerk_id: user_id },
-         select: { first_name: true, profile_pic_key: true }
-      });
+      let userStr = await redis.get(`user:${user_id}`);
+      let user;
+      
+      if (userStr) {
+         user = JSON.parse(userStr);
+      } else {
+         user = await prismaClient.user.findUnique({
+            where: { clerk_id: user_id }
+         });
+         if (user) {
+            await redis.set(`user:${user_id}`, JSON.stringify(user), 'EX', 3600);
+         }
+      }
       
       if (!user) {
          res.status(404).json({ message: "User not found" });
@@ -221,11 +231,12 @@ userRouter.get("/me", async (req, res) => {
       }
 
       res.status(200).json({
-         firstName: user.first_name,
-         profilePicUrl
+         first_name: user.first_name,
+         profile_pic_url: profilePicUrl,
+         user
       });
    } catch (err) {
-      console.log("Error fetching me endpoint: ", err);
+      console.log("Error while fetching from /me endpoint: ", err);
       res.status(500).json({ message: "Server error fetching user" });
    }
 });

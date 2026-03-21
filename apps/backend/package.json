@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1014.0",
-    "@aws-sdk/s3-request-presigner": "^3.996.0",
+    "@aws-sdk/s3-request-presigner": "^3.1014.0",
     "@clerk/backend": "^3.2.2",
     "@repo/db": "*",
     "@repo/redisClient": "*",
