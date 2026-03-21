@@ -11,21 +11,28 @@ const redis = get_redisClient();
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
 userRouter.post("/profile_pic/url", async (req, res) => {
-   const { pic_name } = req.body;
+   const { pic_name, pic_type } = req.body;
    const user_id = req.user_id;
 
    const key = `profile_pics/${crypto.randomUUID()}-${pic_name}`;
 
    await redis.set(`pending:user:${user_id}:profile_pic`, key, 'EX', 300);
+   console.log("pending:user:profile_pic set in redis");
 
-   const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key
-   });
+   try {
+      const command = new PutObjectCommand({
+         Bucket: BUCKET_NAME,
+         Key: key,
+         ContentType: pic_type || "image/png"
+      });
 
-   const url = await getSignedUrl(r2, command, { expiresIn: 180 });
+      const url = await getSignedUrl(r2, command, { expiresIn: 180 });
 
-   res.status(200).json({ url })
+      res.status(200).json({ url })
+   } catch (err) {
+      console.log("Server error: Failed to get presigned url for profile_pic upload, err: " + err);
+      res.status(500).json({ message: "Server error: Failed to get presigned url for profile_pic upload, err: " + err })
+   }
 })
 
 userRouter.post("/details/confirm", async (req, res) => {
@@ -33,7 +40,9 @@ userRouter.post("/details/confirm", async (req, res) => {
    const user_id = req.user_id;
 
    const key = await redis.get(`pending:user:${user_id}:profile_pic`);
+   console.log("pending:user:profile_pic found in redis");
    if (!key) {
+      console.log("No key found for profile_pic obj of user: " + user_id);
       res.status(404).json({ message: `No key found for profile_pic obj of user: ${user_id}` });
       return
    }
@@ -59,7 +68,8 @@ userRouter.post("/details/confirm", async (req, res) => {
             lc_url: lcUrl,
             cf_url: cfUrl
          }
-      }); console.log("user updated in the db");
+      });
+      console.log("user updated in the db");
 
       await redis.del(`pending:user:${user_id}:profile_pic`);
       console.log("pending:user deleted from redis");
@@ -67,29 +77,35 @@ userRouter.post("/details/confirm", async (req, res) => {
       res.status(200).json({ message: "Users profile_pic_key updated succesfuly", success: true })
    } catch (err) {
       console.log("Server error while updating users profile_pic_key: ", err);
-      res.status(500).json({ message: "Server error while updating users profile_pic_key: ", err })
+      res.status(500).json({ message: "Server error: Failed to update users profile_pic_key: ", err })
    }
 })
 
 userRouter.post("/resume/upload_url", async (req, res) => {
-   const { filename } = req.body;
+   const { filename, fileType } = req.body;
    const user_id = req.user_id;
+   console.log("filename, fileType: ", filename, fileType);
 
    const key = `resumes/${req.user_id}-${crypto.randomUUID()}-${filename}`
 
    await redis.set(`pending:user:${user_id}:resume`, key, 'EX', 300);
+   console.log("pending:user:resume set in redis");
 
    try {
       const command = new PutObjectCommand({
          Bucket: BUCKET_NAME,
-         Key: key
+         Key: key,
+         ContentType: fileType || "application/pdf",
+         ACL: "public-read"
       })
+      console.log(command);
 
       const url = await getSignedUrl(r2, command, { expiresIn: 180 })
+      // console.log(url);
       res.status(200).json({ url })
    } catch (err) {
       console.log(err);
-      res.status(500).json({ message: "Server error: " + err })
+      res.status(500).json({ message: "Server error: Failed to get presigned url for resume upload, err: " + err })
    }
 });
 
@@ -97,7 +113,9 @@ userRouter.post("/resume/confirm", async (req, res) => {
    const user_id = req.user_id
 
    const key = await redis.get(`pending:user:${user_id}:resume`);
+   console.log("pending:user:resume found in redis");
    if (!key) {
+      console.log("No resume key found for user: " + user_id);
       res.status(404).json({ message: `No resume key found for user: ${user_id}` });
       return;
    }
@@ -123,7 +141,7 @@ userRouter.post("/resume/confirm", async (req, res) => {
       res.status(200).json({ success: true })
    } catch (err) {
       console.log(err);
-      res.status(500).json({ message: "Server error: " + err })
+      res.status(500).json({ message: "Server error: Failed to confirm resume upload, err: " + err })
    }
 });
 
@@ -135,6 +153,7 @@ userRouter.get("/resume", async (req, res) => {
          select: { resume_obj_key: true }
       });
       if (!user?.resume_obj_key) {
+         console.log("No resume key found for user: " + user_id);
          res.status(404).json({ error: "User has no resume" });
          return;
       }
@@ -152,7 +171,7 @@ userRouter.get("/resume", async (req, res) => {
       (response.Body as any).pipe(res);
    } catch (err) {
       console.log("error: " + err);
-      res.status(500).json({ message: "server error: " + err })
+      res.status(500).json({ message: "Server error: Failed to get resume, err: " + err })
    }
 });
 

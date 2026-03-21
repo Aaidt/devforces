@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import { SignUpButton } from "@clerk/nextjs";
@@ -6,12 +6,7 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
-
-      {/* Animated Gradient Background */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_20%,rgba(34,197,94,0.15),transparent_40%)] animate-pulse" />
-
-      <Navbar />
+    <div className="min-h-screen bg-black text-white">
       <Hero />
       <ProductShowcase />
       <Features />
@@ -22,34 +17,9 @@ export default function Home() {
   );
 }
 
-function Navbar() {
-  return (
-    <header className="fixed top-0 w-full backdrop-blur-xl bg-black/40 border-b border-white/10 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <div className="text-xl font-semibold tracking-tight">
-          Devforces
-        </div>
-
-        <div className="flex items-center gap-6 text-sm">
-          <Link href="/ResumeUpload" className="text-white/70 hover:text-white transition">
-            Upload Resume
-          </Link>
-
-          <SignUpButton mode="modal">
-            <button className="bg-green-500 hover:bg-green-400 text-black px-5 py-2 rounded-lg font-medium transition">
-              Get Started
-            </button>
-          </SignUpButton>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function Hero() {
   return (
     <section className="pt-40 pb-32 px-6 text-center max-w-5xl mx-auto">
-
       <motion.h1
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -66,19 +36,20 @@ function Hero() {
         transition={{ delay: 0.4 }}
         className="text-xl text-white/60 max-w-2xl mx-auto mb-12"
       >
-        Structured evaluations. Real coding environments. Measurable skill signals.
+        Structured evaluations. Real coding environments. Measurable skill
+        signals.
       </motion.p>
 
       <div className="flex flex-col sm:flex-row justify-center gap-5">
         <SignUpButton mode="modal">
-          <button className="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-green-500/20 transition">
+          <button className="bg-green-500 cursor-pointer hover:bg-green-400 text-black px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-green-500/20 transition">
             Start Hiring
           </button>
         </SignUpButton>
 
         <Link
           href="/ResumeUpload"
-          className="px-8 py-4 rounded-xl border border-white/20 hover:border-white hover:bg-white/5 transition text-lg"
+          className="px-8 py-4 rounded-xl border border-white/10 hover:bg-white/5 transition text-lg"
         >
           Upload Resume
         </Link>
@@ -90,7 +61,6 @@ function Hero() {
 function ProductShowcase() {
   return (
     <section className="py-24 px-6 max-w-6xl mx-auto text-center">
-
       <motion.div
         initial={{ opacity: 0, y: 80 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -98,7 +68,7 @@ function ProductShowcase() {
         transition={{ duration: 0.8 }}
         className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl"
       >
-        <div className="aspect-video bg-linear-to-br from-zinc-900 to-zinc-800 rounded-xl flex items-center justify-center text-white/40 text-lg">
+        <div className="aspect-video bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-xl flex items-center justify-center text-white/40 text-lg">
           Product Dashboard Screenshot
         </div>
       </motion.div>
@@ -109,13 +79,11 @@ function ProductShowcase() {
 function Features() {
   return (
     <section className="py-28 px-6 max-w-7xl mx-auto">
-
       <div className="text-center mb-20">
-        <h2 className="text-4xl font-bold mb-6">
-          Built for Precision Hiring
-        </h2>
+        <h2 className="text-4xl font-bold mb-6">Built for Precision Hiring</h2>
         <p className="text-white/60 text-lg max-w-2xl mx-auto">
-          Remove bias. Standardize evaluation. Identify top talent with measurable signals.
+          Remove bias. Standardize evaluation. Identify top talent with
+          measurable signals.
         </p>
       </div>
 
@@ -155,18 +123,12 @@ function FeatureCard({ title, text }: { title: string; text: string }) {
 function Pricing() {
   return (
     <section className="py-28 px-6 bg-white/5 border-y border-white/10">
-
       <div className="text-center mb-20">
-        <h2 className="text-4xl font-bold mb-6">
-          Simple Pricing
-        </h2>
-        <p className="text-white/60 text-lg">
-          Start free. Scale as you grow.
-        </p>
+        <h2 className="text-4xl font-bold mb-6">Simple Pricing</h2>
+        <p className="text-white/60 text-lg">Start free. Scale as you grow.</p>
       </div>
 
       <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
-
         <PriceCard
           title="Starter"
           price="$0"
@@ -177,7 +139,11 @@ function Pricing() {
           title="Growth"
           price="$49"
           highlighted
-          features={["Unlimited assessments", "Advanced insights", "Priority support"]}
+          features={[
+            "Unlimited assessments",
+            "Advanced insights",
+            "Priority support",
+          ]}
         />
 
         <PriceCard
@@ -185,7 +151,6 @@ function Pricing() {
           price="Custom"
           features={["Custom integrations", "Dedicated support", "SLA"]}
         />
-
       </div>
     </section>
   );
@@ -195,7 +160,7 @@ function PriceCard({
   title,
   price,
   features,
-  highlighted
+  highlighted,
 }: {
   title: string;
   price: string;
@@ -204,11 +169,10 @@ function PriceCard({
 }) {
   return (
     <div
-      className={`rounded-2xl p-10 border ${
-        highlighted
+      className={`rounded-2xl p-10 border ${highlighted
           ? "border-green-500 bg-green-500/10"
           : "border-white/10 bg-white/5"
-      }`}
+        }`}
     >
       <h3 className="text-xl font-semibold mb-4">{title}</h3>
       <div className="text-4xl font-bold mb-6">{price}</div>
@@ -229,10 +193,7 @@ function PriceCard({
 function CTA() {
   return (
     <section className="py-32 text-center">
-
-      <h2 className="text-5xl font-bold mb-6">
-        Ready to transform hiring?
-      </h2>
+      <h2 className="text-5xl font-bold mb-6">Ready to transform hiring?</h2>
 
       <p className="text-white/60 text-xl mb-12">
         Join modern engineering teams using Devforces.
