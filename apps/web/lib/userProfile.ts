@@ -17,7 +17,8 @@ type Profile = {
         bio: string,
         gh_url: string,
         lc_url?: string,
-        cf_url?: string
+        cf_url?: string,
+        wakatime_api?: string
     }
 };
 

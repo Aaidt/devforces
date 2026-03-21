@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useProfile } from "@/lib/userProfile";
 import { PlatformHeatmap } from "@/components/PlatformHeatmap";
+import { WakatimeDashboard } from "@/components/WakatimeDashboard";
 
 export default function ProfilePage() {
   const { username } = useParams();
@@ -19,10 +20,18 @@ export default function ProfilePage() {
   const getGhHandle = (url?: string) => url?.split("github.com/")[1]?.split("/")[0] || "";
   const getLcHandle = (url?: string) => url?.split("leetcode.com/u/")[1]?.split("/")[0] || url?.split("leetcode.com/")[1]?.split("/")[0] || "";
   const getCfHandle = (url?: string) => url?.split("codeforces.com/profile/")[1]?.split("/")[0] || "";
+  const getWakatimeHandle = (val?: string) => {
+    if (!val) return "";
+    if (val.includes("wakatime.com/@")) {
+      return val.split("wakatime.com/@")[1]?.split("/")?.[0]?.split("?")?.[0] || "";
+    }
+    return val;
+  };
 
-  const ghHandle = getGhHandle(profile.user.gh_url);
-  const lcHandle = getLcHandle(profile.user.lc_url);
-  const cfHandle = getCfHandle(profile.user.cf_url);
+  const ghHandle = getGhHandle(profile.user?.gh_url);
+  const lcHandle = getLcHandle(profile.user?.lc_url);
+  const cfHandle = getCfHandle(profile.user?.cf_url);
+  const wakatimeHandle = getWakatimeHandle(profile.user?.wakatime_api);
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top_right,rgba(34,197,94,0.05),transparent_50%)]">
@@ -53,19 +62,27 @@ export default function ProfilePage() {
             )}
             <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-2">
               {ghHandle && (
-                <a href={profile.user.gh_url} target="_blank" className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-full text-xs font-bold text-white transition-all shadow-lg flex items-center gap-2">
+                <a href={profile.user?.gh_url} target="_blank" className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-full text-xs font-bold text-white transition-all shadow-lg flex items-center gap-2">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" /></svg>
                   GitHub
                 </a>
               )}
               {lcHandle && (
-                <a href={profile.user.lc_url} target="_blank" className="px-5 py-2.5 bg-yellow-900/40 hover:bg-yellow-900/60 border border-yellow-500/20 rounded-full text-xs font-bold text-yellow-500 transition-all shadow-lg">
+                <a href={profile.user?.lc_url} target="_blank" className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-full text-xs font-bold text-white transition-all shadow-lg flex items-center gap-2">
+                  <svg className="w-4 h-4 text-yellow-500" viewBox="0 0 24 24" fill="currentColor"><path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.536-.536.554-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 0 0-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.536-1.387-.554-1.902-.039l-7.078 7.18c-.81.812-1.227 1.9-1.227 3.004s.418 2.221 1.227 3.022l7.105 7.061a4.54 4.54 0 0 0 3.128 1.469 4.537 4.537 0 0 0 3.129-1.469l2.608-2.636c.515-.514.498-1.366-.037-1.901-.536-.535-1.387-.553-1.902-.038zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z"/></svg>
                   LeetCode
                 </a>
               )}
               {cfHandle && (
-                <a href={profile.user.cf_url} target="_blank" className="px-5 py-2.5 bg-blue-900/40 hover:bg-blue-900/60 border border-blue-500/20 rounded-full text-xs font-bold text-blue-400 transition-all shadow-lg">
+                <a href={profile.user?.cf_url} target="_blank" className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-full text-xs font-bold text-white transition-all shadow-lg flex items-center gap-2">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 7.5C5.328 7.5 6 8.172 6 9v10.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5V9c0-.828.672-1.5 1.5-1.5zm9 0c.828 0 1.5.672 1.5 1.5v10.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5V9c0-.828.672-1.5 1.5-1.5zm-4.5 3c.828 0 1.5.672 1.5 1.5v7.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5v-7.5c0-.828.672-1.5 1.5-1.5zm9-6c.828 0 1.5.672 1.5 1.5v13.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5V6c0-.828.672-1.5 1.5-1.5z" fill="#1F8ACB"/></svg>
                   Codeforces
+                </a>
+              )}
+              {wakatimeHandle && (
+                <a href={`https://wakatime.com/@${wakatimeHandle}`} target="_blank" className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-full text-xs font-bold text-zinc-300 transition-all shadow-lg flex items-center gap-2">
+                  <svg className="w-4 h-4 text-[#38b259]" viewBox="0 0 24 24" fill="currentColor"><path d="M11.996 0c.264 0 .524.032.775.093l.3.082V2.83c-.352-.1-.715-.152-1.075-.152-2.825 0-5.115 2.29-5.115 5.115 0 2.22 1.418 4.15 3.473 4.86.326.112.51.464.425.795a.614.614 0 01-.768.42C7.307 12.986 5.483 10.512 5.483 7.794c0-3.593 2.92-6.513 6.513-6.513M22.062 13.924c.756.9 1.155 2.023 1.155 3.24 0 2.825-2.29 5.114-5.114 5.114a5.08 5.08 0 01-3.618-1.5 5.083 5.083 0 01-1.498-3.616c0-.582.095-1.155.283-1.688.106-.307.437-.47.746-.364.305.105.474.437.368.746-.145.42-.22.868-.22 1.306 0 2.124 1.72 3.846 3.844 3.846 2.124 0 3.844-1.722 3.844-3.846 0-.9-.304-1.72-.857-2.38a.625.625 0 01.073-.883.628.628 0 01.884.072zM12.9 8.017a.628.628 0 01-.628.628H8.85l7.103 7.104c-.382.493-.842.92-1.353 1.258a.627.627 0 11-.692-1.042 5.093 5.093 0 001.033-.94L7.846 7.925v.092a.628.628 0 11-1.257 0v-2.02c0-.348.28-.628.628-.628h2.02a.628.628 0 110 1.256H9.15l4.378 4.378h-.615a.628.628 0 110 1.256h.615l-.624-.624v.624a.628.628 0 11-1.256 0v-2.012H9.088c-.347 0-.628-.28-.628-.628V7.61c0-.346.28-.628.628-.628h3.184c.346 0 .628.28.628.628v.406z"/></svg>
+                  WakaTime
                 </a>
               )}
             </div>
@@ -95,7 +112,8 @@ export default function ProfilePage() {
             {lcHandle && (
               <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-zinc-900/50 to-black border border-white/10 rounded-2xl p-6 lg:p-10 shadow-xl flex flex-col items-center transition-colors group overflow-hidden">
                 <h3 className="text-zinc-200 font-semibold mb-6 flex items-center gap-2 text-lg">
-                  <span className="text-yellow-500 font-bold bg-yellow-500/10 px-2 py-1 rounded w-8 h-8 flex items-center justify-center">L</span> LeetCode
+                  <svg className="w-5 h-5 text-yellow-500 drop-shadow-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.536-.536.554-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 0 0-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.536-1.387-.554-1.902-.039l-7.078 7.18c-.81.812-1.227 1.9-1.227 3.004s.418 2.221 1.227 3.022l7.105 7.061a4.54 4.54 0 0 0 3.128 1.469 4.537 4.537 0 0 0 3.129-1.469l2.608-2.636c.515-.514.498-1.366-.037-1.901-.536-.535-1.387-.553-1.902-.038zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z"/></svg>
+                  LeetCode
                 </h3>
                 <div className="flex flex-col items-center w-full gap-8">
                   <img
@@ -114,7 +132,8 @@ export default function ProfilePage() {
             {cfHandle && (
               <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-zinc-900/50 to-black border border-white/10 rounded-2xl p-6 lg:p-10 shadow-xl flex flex-col items-center transition-colors group overflow-hidden">
                 <h3 className="text-zinc-200 font-semibold mb-6 flex items-center gap-2 text-lg">
-                  <span className="text-blue-500 font-bold bg-blue-500/10 px-2 py-1 rounded w-8 h-8 flex items-center justify-center">CF</span> Codeforces
+                  <svg className="w-5 h-5 drop-shadow-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 7.5C5.328 7.5 6 8.172 6 9v10.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5V9c0-.828.672-1.5 1.5-1.5zm9 0c.828 0 1.5.672 1.5 1.5v10.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5V9c0-.828.672-1.5 1.5-1.5zm-4.5 3c.828 0 1.5.672 1.5 1.5v7.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5v-7.5c0-.828.672-1.5 1.5-1.5zm9-6c.828 0 1.5.672 1.5 1.5v13.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5V6c0-.828.672-1.5 1.5-1.5z" fill="#1F8ACB"/></svg>
+                  Codeforces
                 </h3>
                 <div className="flex flex-col items-center w-full gap-8">
                   <img
@@ -126,6 +145,18 @@ export default function ProfilePage() {
                     <h4 className="text-zinc-400 text-sm font-medium mb-4 text-center">Submission Heatmap</h4>
                     <PlatformHeatmap platform="codeforces" username={cfHandle} />
                   </div>
+                </div>
+              </div>
+            )}
+
+            {wakatimeHandle && (
+              <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-zinc-900/50 to-black border border-white/10 rounded-2xl p-6 lg:p-8 shadow-xl flex flex-col items-center transition-colors group overflow-hidden">
+                <h3 className="text-zinc-200 font-semibold mb-6 flex items-center gap-2 text-lg">
+                  <svg className="w-5 h-5 text-[#38b259]" viewBox="0 0 24 24" fill="currentColor"><path d="M11.996 0c.264 0 .524.032.775.093l.3.082V2.83c-.352-.1-.715-.152-1.075-.152-2.825 0-5.115 2.29-5.115 5.115 0 2.22 1.418 4.15 3.473 4.86.326.112.51.464.425.795a.614.614 0 01-.768.42C7.307 12.986 5.483 10.512 5.483 7.794c0-3.593 2.92-6.513 6.513-6.513M22.062 13.924c.756.9 1.155 2.023 1.155 3.24 0 2.825-2.29 5.114-5.114 5.114a5.08 5.08 0 01-3.618-1.5 5.083 5.083 0 01-1.498-3.616c0-.582.095-1.155.283-1.688.106-.307.437-.47.746-.364.305.105.474.437.368.746-.145.42-.22.868-.22 1.306 0 2.124 1.72 3.846 3.844 3.846 2.124 0 3.844-1.722 3.844-3.846 0-.9-.304-1.72-.857-2.38a.625.625 0 01.073-.883.628.628 0 01.884.072zM12.9 8.017a.628.628 0 01-.628.628H8.85l7.103 7.104c-.382.493-.842.92-1.353 1.258a.627.627 0 11-.692-1.042 5.093 5.093 0 001.033-.94L7.846 7.925v.092a.628.628 0 11-1.257 0v-2.02c0-.348.28-.628.628-.628h2.02a.628.628 0 110 1.256H9.15l4.378 4.378h-.615a.628.628 0 110 1.256h.615l-.624-.624v.624a.628.628 0 11-1.256 0v-2.012H9.088c-.347 0-.628-.28-.628-.628V7.61c0-.346.28-.628.628-.628h3.184c.346 0 .628.28.628.628v.406z"/></svg>
+                  WakaTime
+                </h3>
+                <div className="flex flex-col items-center justify-center w-full">
+                  <WakatimeDashboard apiKey={profile.user?.wakatime_api || ""} />
                 </div>
               </div>
             )}

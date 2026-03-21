@@ -62,7 +62,7 @@ export function PlatformHeatmap({ platform, username }: { platform: "leetcode" |
   Object.keys(data).forEach(timestamp => {
     const d = new Date(parseInt(timestamp) * 1000);
     const dateId = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    activityByDateId[dateId] = (activityByDateId[dateId] || 0) + data[timestamp];
+    activityByDateId[dateId] = (activityByDateId[dateId] || 0) + data[timestamp]!;
   });
 
   for (let i = 0; i <= 365; i++) {

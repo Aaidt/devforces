@@ -205,6 +205,7 @@ userRouter.get("/me", async (req, res) => {
 
    try {
       let userStr = await redis.get(`user:${user_id}`);
+      console.log("got from userStr ", userStr);
       let user;
       
       if (userStr) {
