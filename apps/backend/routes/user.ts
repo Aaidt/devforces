@@ -34,6 +34,7 @@ userRouter.post("/profile_pic/url", async (req, res) => {
          ContentType: pic_type || "image/png"
       });
 
+      // @ts-ignore
       const url = await getSignedUrl(r2, command, { expiresIn: 180 });
 
       res.status(200).json({ url })
@@ -123,6 +124,7 @@ userRouter.post("/resume/upload_url", async (req, res) => {
       })
       console.log(command);
 
+      // @ts-ignore
       const url = await getSignedUrl(r2, command, { expiresIn: 180 })
       // console.log(url);
       res.status(200).json({ url })
@@ -227,6 +229,7 @@ userRouter.get("/me", async (req, res) => {
             Bucket: BUCKET_NAME,
             Key: user.profile_pic_key
          });
+         // @ts-ignore
          profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
       }
 
