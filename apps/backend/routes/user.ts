@@ -245,4 +245,74 @@ userRouter.get("/me", async (req, res) => {
    }
 });
 
+// DELETE /me - Delete user and all related data
+userRouter.delete("/me", async (req, res) => {
+   const user_id = req.user_id;
+
+   // try {
+   //    // Delete in order of dependencies
+   //    // 1. Delete submissions by the user
+   //    await prismaClient.submission.deleteMany({
+   //       where: { user_id }
+   //    });
+
+   //    // 2. Delete leaderboard entries
+   //    await prismaClient.leaderboard.deleteMany({
+   //       where: { user_id }
+   //    });
+
+   //    // 3. Delete hiring posts by the user (admin)
+   //    await prismaClient.hiringPost.deleteMany({
+   //       where: { admin_id: user_id }
+   //    });
+
+   //    // 4. For contests created by this user, clean up mappings first
+   //    const userContests = await prismaClient.contest.findMany({
+   //       where: { admin_id: user_id },
+   //       select: { id: true }
+   //    });
+   //    const contestIds = userContests.map(c => c.id);
+
+   //    if (contestIds.length > 0) {
+   //       // Delete submissions tied to those contest mappings
+   //       await prismaClient.submission.deleteMany({
+   //          where: {
+   //             contest_to_challenge_mapping: {
+   //                contest_id: { in: contestIds }
+   //             }
+   //          }
+   //       });
+
+   //       // Delete leaderboard entries for those contests
+   //       await prismaClient.leaderboard.deleteMany({
+   //          where: { contest_id: { in: contestIds } }
+   //       });
+
+   //       // Delete contest-to-challenge mappings
+   //       await prismaClient.contest_to_Challenge_mapping.deleteMany({
+   //          where: { contest_id: { in: contestIds } }
+   //       });
+
+   //       // Delete the contests
+   //       await prismaClient.contest.deleteMany({
+   //          where: { admin_id: user_id }
+   //       });
+   //    }
+
+   // 5. Delete the user record
+   try {
+      await prismaClient.user.delete({
+         where: { clerk_id: user_id }
+      });
+
+      // 6. Clear Redis cache
+      await redis.del(`user:${user_id}`);
+
+      res.status(200).json({ message: "Account and all associated data deleted successfully." });
+   } catch (err) {
+      console.error("Error deleting user data:", err);
+      res.status(500).json({ message: "Failed to delete account. Please try again." });
+   }
+});
+
 export default userRouter;

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SignUpButton, useUser } from "@clerk/nextjs";
+import { Brain, Code2, BarChart3, Puzzle } from 'lucide-react';
 import { motion } from "framer-motion";
 import { useProfile } from "@/lib/userProfile";
 
@@ -24,7 +25,8 @@ export default function Home() {
         <Hero />
       )}
       <TrustedBy />
-      <Features />
+      {/* <Features /> */}
+      <FeaturesBento />
       <HowItWorks />
       <Pricing />
       <CTA />
@@ -325,3 +327,93 @@ function Footer() {
     </footer>
   );
 }
+
+const FeaturesBento = () => {
+  return (
+    <section className="bg-[#0e0e0e] py-24 px-6 text-white font-sans">
+      <div className="max-w-7xl mx-auto">
+        {/* Section Heading */}
+        <div className="mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            The intelligent hiring stack
+          </h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-[#4edea3] to-[#4cd7f6]" />
+        </div>
+
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[300px]">
+          
+          {/* AI Assessments - Large Card */}
+          <div className="md:col-span-7 row-span-1 bg-[#1a1a1a] rounded-3xl p-10 relative overflow-hidden group border border-white/5 transition-all duration-500">
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="bg-[#4edea3]/10 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
+                <Brain className="text-[#4edea3] w-6 h-6" />
+              </div>
+              <h3 className="text-3xl font-bold mb-4">AI assessments</h3>
+              <p className="text-zinc-400 max-w-sm leading-relaxed text-lg">
+                Our neural engine analyzes code quality, architectural decisions, and edge-case handling in real-time. No more generic multiple-choice questions.
+              </p>
+            </div>
+            {/* Background Decorative Icon */}
+            <div className="absolute -bottom-10 -right-10 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Brain size={280} strokeWidth={1} />
+            </div>
+          </div>
+
+          {/* Cloud IDE - Side Card */}
+          <div className="md:col-span-5 row-span-1 bg-[#1a1a1a] rounded-3xl p-8 border border-white/5 transition-all group">
+            <div className="bg-[#4cd7f6]/10 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
+              <Code2 className="text-[#4cd7f6] w-5 h-5" />
+            </div>
+            <h3 className="text-2xl font-bold mb-3">Cloud IDE</h3>
+            <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
+              A fully integrated environment with pre-configured stacks. Candidates build real features, not just algorithms.
+            </p>
+            {/* Terminal Preview */}
+            <div className="mt-auto bg-black/40 rounded-xl p-4 font-mono text-xs border border-white/5">
+              <div className="flex gap-2">
+                <span className="text-[#4edea3]">$</span>
+                <span className="text-zinc-300">npm install @devforces/core</span>
+              </div>
+              <div className="flex gap-2 mt-1 opacity-40">
+                <span>&gt;</span>
+                <span>Initializing assessment sandbox...</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Deep Analytics - Bottom Left */}
+          <div className="md:col-span-5 row-span-1 bg-[#1a1a1a] rounded-3xl p-8 border border-white/5 transition-all">
+            <div className="bg-[#4edea3]/10 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
+              <BarChart3 className="text-[#4edea3] w-5 h-5" />
+            </div>
+            <h3 className="text-2xl font-bold mb-3">Deep Analytics</h3>
+            <p className="text-zinc-400 text-sm leading-relaxed">
+              Compare candidates across 40+ engineering dimensions with proprietary skill-mapping technology.
+            </p>
+          </div>
+
+          {/* Native Integrations - Bottom Right */}
+          <div className="md:col-span-7 row-span-1 bg-[#1a1a1a] rounded-3xl p-8 border border-white/5 transition-all flex items-center justify-between group">
+            <div className="max-w-xs">
+              <h3 className="text-2xl font-bold mb-2">Native Integrations</h3>
+              <p className="text-zinc-400 text-sm">Sync seamlessly with Slack, Greenhouse, and Lever.</p>
+            </div>
+            {/* Integration Icons Box */}
+            <div className="flex gap-3">
+              <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
+                <Puzzle className="text-zinc-400 w-6 h-6" />
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
+                <div className="w-6 h-6 border-2 border-zinc-500 rounded-sm rotate-45 flex items-center justify-center">
+                  <div className="w-1 h-1 bg-zinc-500 rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
