@@ -41,17 +41,15 @@ function Hero() {
       </motion.p>
 
       <div className="flex flex-col sm:flex-row justify-center gap-5">
-        <SignUpButton mode="modal">
-          <button className="bg-green-500 cursor-pointer hover:bg-green-400 text-black px-4 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-green-500/20 transition">
+          <Link href="/hiring/details" className="bg-green-700 cursor-pointer hover:bg-green-600 text-black px-4 py-3 rounded-lg font-semibold text-lgx ">
             Start Hiring
-          </button>
-        </SignUpButton>
+          </Link>
 
         <Link
           href="/CandidateDetails"
-          className="px-4 py-3 cursor-pointer rounded-xl border border-white/10 hover:bg-white/5 transition text-lg"
+          className="px-4 py-3 cursor-pointer rounded-lg border border-white/10 hover:bg-white/5 transition text-lg"
         >
-          Get started
+          Get hired
         </Link>
       </div>
     </section>

@@ -43,6 +43,12 @@ model User {
    lc_url          String?
    cf_url          String?
    wakatime_api    String?
+
+   company_name        String?
+   company_description String?
+   company_website     String?
+   company_employees   Int?
+
    created_at      DateTime @default(now())
    updated_at      DateTime @updatedAt
 

@@ -20,3 +20,10 @@ export const resumeSchema = z.object({
    filename: z.string().min(1, "Filename is required"),
    fileType: z.string().min(1, "File type is required"),
 });
+
+export const companyDetailsSchema = z.object({
+   companyName: z.string().min(1, "Company name is required"),
+   companyDescription: z.string().min(1, "Company description is required"),
+   companyWebsite: z.string().url("Valid website URL is required").optional(),
+   companyEmployees: z.number()
+});
