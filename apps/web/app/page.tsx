@@ -10,12 +10,20 @@ export default function Home() {
   const { profile, loading } = useProfile();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#050505] text-slate-200 selection:bg-emerald-500/30 font-sans">
+      {/* Subtle Grid Background */}
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+
+      {/* Floating orbs */}
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-emerald-500/[0.03] rounded-full blur-[100px] pointer-events-none" />
+      <div className="fixed top-1/3 right-1/4 w-72 h-72 bg-cyan-500/[0.02] rounded-full blur-[100px] pointer-events-none" />
+
       {isLoaded && isSignedIn && !loading && profile ? (
         <RoleDashboard role={profile.user.role} name={profile.first_name} companyName={profile.user.company_name} />
       ) : (
         <Hero />
       )}
+      <TrustedBy />
       <Features />
       <HowItWorks />
       <Pricing />
@@ -26,71 +34,43 @@ export default function Home() {
 }
 
 function RoleDashboard({ role, name, companyName }: { role: "user" | "admin"; name: string; companyName?: string }) {
+  const isAdmin = role === "admin";
+
   return (
-    <section className="relative pt-40 pb-32 px-6 max-w-5xl mx-auto overflow-hidden">
-      <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full blur-[120px] opacity-20 pointer-events-none ${role === "admin" ? "bg-emerald-500" : "bg-blue-500"}`} />
+    <section className="relative pt-44 pb-32 px-6 max-w-5xl mx-auto">
+      <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[140px] opacity-20 pointer-events-none ${isAdmin ? "bg-emerald-500" : "bg-blue-500"}`} />
 
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         className="text-center relative z-10"
       >
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-sm text-white/40 uppercase tracking-[0.2em] font-medium mb-6"
-        >
-          Welcome back
-        </motion.p>
-        <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight mb-6 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
-          {name}
+        <p className="text-xs text-emerald-500/80 uppercase tracking-[0.3em] font-bold mb-4">
+          Personal Workspace
+        </p>
+        <h1 className="text-6xl md:text-8xl font-black leading-tight tracking-tighter mb-8">
+          <span className="bg-gradient-to-b from-white via-white to-white/40 bg-clip-text text-transparent">Hello, </span>
+          <span className="italic bg-gradient-to-r from-emerald-300 to-cyan-400 bg-clip-text text-transparent">{name}</span>
         </h1>
 
-        {role === "admin" ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-8 space-y-6"
-          >
-            <div className="inline-flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-6 py-3 rounded-full text-sm font-semibold backdrop-blur-sm">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-              {companyName || "Company"} — Hiring
-            </div>
-            <p className="text-lg text-white/50 max-w-xl mx-auto leading-relaxed">
-              Manage your hiring contests and find the best candidates through skill-based assessments.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-              <Link href="/profile/me" className="group bg-emerald-500 hover:bg-emerald-400 text-black px-8 py-4 rounded-2xl font-bold text-base transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 flex items-center justify-center gap-2">
-                Hiring Dashboard
-                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-              </Link>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-8 space-y-6"
-          >
-            <div className="inline-flex items-center gap-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 px-6 py-3 rounded-full text-sm font-semibold backdrop-blur-sm">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-              Candidate — Getting Hired
-            </div>
-            <p className="text-lg text-white/50 max-w-xl mx-auto leading-relaxed">
-              Your developer profile is live. Compete in hiring contests and showcase your skills.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-              <Link href="/profile/me" className="group bg-blue-500 hover:bg-blue-400 text-white px-8 py-4 rounded-2xl font-bold text-base transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 flex items-center justify-center gap-2">
-                View Profile & Stats
-                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-              </Link>
-            </div>
-          </motion.div>
-        )}
+        <div className="flex flex-col items-center gap-6">
+          <div className={`inline-flex items-center gap-2.5 ${isAdmin ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400" : "bg-blue-500/5 border-blue-500/20 text-blue-400"} border px-5 py-2 rounded-full text-sm font-medium backdrop-blur-md`}>
+            <span className={`w-2 h-2 rounded-full animate-pulse ${isAdmin ? "bg-emerald-500" : "bg-blue-500"}`} />
+            {isAdmin ? "Recruiter Access" : "Developer Account"}
+          </div>
+          
+          <p className="text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
+            {isAdmin 
+              ? <>Managing talent acquisition for <span className="text-slate-300 font-semibold">{companyName || "your organization"}</span>.</> 
+              : "Ready to showcase your technical skills and compete in hiring contests."}
+          </p>
+
+          <Link href="/profile/me" className={`mt-4 cursor-pointer group ${isAdmin ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-blue-500 text-white hover:bg-blue-400"} px-10 py-4 rounded-2xl font-bold transition-all flex items-center gap-3 shadow-2xl ${isAdmin ? "shadow-emerald-500/20" : "shadow-blue-500/20"}`}>
+            Enter Dashboard
+            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+          </Link>
+        </div>
       </motion.div>
     </section>
   );
@@ -98,53 +78,49 @@ function RoleDashboard({ role, name, companyName }: { role: "user" | "admin"; na
 
 function Hero() {
   return (
-    <section className="relative pt-40 pb-32 px-6 text-center max-w-5xl mx-auto overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-green-500 rounded-full blur-[120px] opacity-[0.07] pointer-events-none" />
-
+    <section className="relative pt-48 pb-28 px-6 text-center max-w-6xl mx-auto">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-xs text-white/60 font-medium mb-8 backdrop-blur-sm"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full text-[11px] text-emerald-400 font-bold uppercase tracking-widest mb-10 backdrop-blur-sm"
       >
-        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-        Now in Public Beta
+        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+        AI-Powered Technical Hiring
       </motion.div>
 
       <motion.h1
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-8 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent"
+        className="text-6xl md:text-[5.5rem] font-black leading-[0.95] tracking-tight mb-10"
       >
-        The Operating System <br />
-        for <span className="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Technical Hiring</span>
+        <span className="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">Hire engineers with </span>
+        <br />
+        <span className="italic bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">AI-evaluated</span>
+        <span className="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent"> skill signals.</span>
       </motion.h1>
 
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-14 leading-relaxed"
+        transition={{ delay: 0.3 }}
+        className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto mb-14 leading-relaxed"
       >
-        Structured evaluations. Real coding environments. Measurable skill
-        signals — built for teams that hire engineers.
+        Automated coding assessments, real-time AI analysis, and measurable 
+        performance data — built for teams that want to <span className="text-slate-300 font-medium">eliminate hiring bias</span>.
       </motion.p>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="flex flex-col sm:flex-row justify-center gap-4"
+        transition={{ delay: 0.5 }}
+        className="flex flex-col sm:flex-row justify-center gap-5"
       >
-        <Link href="/hiring/details" className="group bg-white hover:bg-zinc-100 text-black px-8 py-4 rounded-2xl font-bold text-base transition-all shadow-lg shadow-white/10 flex items-center justify-center gap-2">
+        <Link href="/hiring/details" className="cursor-pointer group bg-white text-black px-10 py-4 rounded-2xl font-bold text-base transition-all hover:bg-emerald-400 flex items-center justify-center gap-2.5 shadow-xl shadow-white/5">
           Start Hiring
-          <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
         </Link>
-        <Link
-          href="/CandidateDetails"
-          className="px-8 py-4 rounded-2xl border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all text-base font-semibold text-white/80 flex items-center justify-center gap-2"
-        >
+        <Link href="/CandidateDetails" className="cursor-pointer px-10 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all text-base font-bold text-white flex items-center justify-center gap-2 backdrop-blur-md">
           Get Hired
         </Link>
       </motion.div>
@@ -152,88 +128,71 @@ function Hero() {
   );
 }
 
+function TrustedBy() {
+  return (
+    <motion.section
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      className="py-12 px-6 border-y border-white/5"
+    >
+      <div className="max-w-5xl mx-auto text-center">
+        <p className="text-[11px] text-slate-600 uppercase tracking-[0.25em] font-bold mb-6">Trusted by engineering teams at</p>
+        <div className="flex flex-wrap justify-center gap-x-12 gap-y-4 text-slate-600/60">
+          {["TechCorp", "ScaleAI", "DevStack", "CloudBase", "NeuralOps"].map((name) => (
+            <span key={name} className="text-sm font-bold tracking-wider">{name}</span>
+          ))}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
 function Features() {
   const features = [
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
-      ),
-      title: "Standardized Assessments",
-      text: "Consistent, role-specific technical evaluations that predict real performance and eliminate bias.",
-      color: "green"
+      title: "AI-Scored Assessments",
+      text: "Role-specific technical evaluations scored by AI models that predict real-world performance with measurable accuracy.",
+      icon: "🎯",
+      detail: "GPT-4 powered scoring"
     },
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-      ),
-      title: "Real Coding Environment",
-      text: "Fully configured IDE with multi-language support. No setup required — candidates start coding instantly.",
-      color: "blue"
+      title: "Cloud IDE",
+      text: "Zero-config coding environments with 20+ language runtimes. Candidates start solving challenges in seconds.",
+      icon: "💻",
+      detail: "< 2s cold start"
     },
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-      ),
-      title: "Deep Candidate Insights",
-      text: "Analyze architecture decisions, code efficiency, and debugging patterns with actionable data.",
-      color: "purple"
+      title: "Deep Analytics",
+      text: "AI-generated candidate reports analyzing code architecture, efficiency patterns, and problem-solving approaches.",
+      icon: "📊",
+      detail: "Real-time insights"
     },
   ];
 
-  const colorMap: Record<string, string> = {
-    green: "from-green-500/20 to-transparent border-green-500/10 text-green-400",
-    blue: "from-blue-500/20 to-transparent border-blue-500/10 text-blue-400",
-    purple: "from-purple-500/20 to-transparent border-purple-500/10 text-purple-400",
-  };
-
   return (
-    <section className="py-28 px-6 max-w-7xl mx-auto">
-      <div className="text-center mb-20">
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-green-500 text-sm font-semibold uppercase tracking-[0.15em] mb-4"
-        >
-          Features
-        </motion.p>
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent"
-        >
-          Built for Precision Hiring
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="text-white/40 text-lg max-w-2xl mx-auto"
-        >
-          Remove bias. Standardize evaluation. Identify top talent with measurable signals.
-        </motion.p>
+    <section className="py-32 px-6 max-w-7xl mx-auto relative">
+      <div className="text-center mb-16">
+        <p className="text-[11px] text-emerald-500/70 uppercase tracking-[0.25em] font-bold mb-4">Capabilities</p>
+        <h2 className="text-4xl md:text-5xl font-black tracking-tighter">
+          <span className="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">The </span>
+          <span className="italic bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">intelligent</span>
+          <span className="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent"> hiring stack.</span>
+        </h2>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        {features.map((f, i) => (
+        {features.map((f) => (
           <motion.div
             key={f.title}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.15 }}
-            className="group bg-zinc-900/30 border border-white/5 rounded-2xl p-8 hover:border-white/10 transition-all duration-300 relative overflow-hidden"
+            whileHover={{ y: -6 }}
+            className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] transition-all duration-300 group relative overflow-hidden hover:bg-emerald-500/[0.06]"
           >
-            <div className={`absolute inset-0 bg-gradient-to-b opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${colorMap[f.color]?.split(" ")[0]} to-transparent`} />
-            <div className="relative z-10">
-              <div className={`w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center mb-6 ${colorMap[f.color]?.split(" ").pop()}`}>
-                {f.icon}
-              </div>
-              <h3 className="text-lg font-semibold mb-3 text-white">{f.title}</h3>
-              <p className="text-white/40 leading-relaxed text-sm">{f.text}</p>
-            </div>
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="text-3xl mb-5">{f.icon}</div>
+            <h3 className="text-lg font-bold mb-2 text-white group-hover:text-emerald-400 transition-colors">{f.title}</h3>
+            <p className="text-slate-500 leading-relaxed text-sm mb-4">{f.text}</p>
+            <span className="text-[11px] font-bold text-emerald-500/50 uppercase tracking-widest">{f.detail}</span>
           </motion.div>
         ))}
       </div>
@@ -243,31 +202,34 @@ function Features() {
 
 function HowItWorks() {
   const steps = [
-    { num: "01", title: "Post Your Role", desc: "Define the position, requirements, and create a hiring contest." },
-    { num: "02", title: "Candidates Compete", desc: "Engineers solve real challenges in a timed, fair environment." },
-    { num: "03", title: "Review & Hire", desc: "Access detailed performance insights and hire with confidence." },
+    { n: "01", title: "Define", desc: "Create role-specific contests with custom challenges and time limits." },
+    { n: "02", title: "Evaluate", desc: "Candidates compete in fair, proctored cloud environments." },
+    { n: "03", title: "Hire", desc: "AI-generated reports rank candidates by skill, not résumé." },
   ];
 
   return (
-    <section className="py-28 px-6 border-y border-white/5">
+    <section className="py-32 px-6 border-y border-white/5 bg-white/[0.01]">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-green-500 text-sm font-semibold uppercase tracking-[0.15em] mb-4">How It Works</p>
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Three simple steps</h2>
+        <div className="text-center mb-20">
+          <p className="text-[11px] text-emerald-500/70 uppercase tracking-[0.25em] font-bold mb-4">Process</p>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">
+            <span className="italic bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Three steps</span>
+            <span className="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent"> to better hires.</span>
+          </h2>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((s, i) => (
             <motion.div
-              key={s.num}
+              key={s.n}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
-              className="text-center"
+              className="relative text-center group"
             >
-              <div className="text-5xl font-black text-white/5 mb-4">{s.num}</div>
-              <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
-              <p className="text-white/40 text-sm leading-relaxed">{s.desc}</p>
+              <span className="text-9xl font-black text-white/[0.05] absolute -top-10 left-1/2 -translate-x-1/2 select-none pointer-events-none">{s.n}</span>
+              <h3 className="text-xl font-bold text-white mb-3 relative z-10">{s.title}</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -278,90 +240,48 @@ function HowItWorks() {
 
 function Pricing() {
   return (
-    <section className="py-28 px-6">
-      <div className="text-center mb-20">
-        <p className="text-green-500 text-sm font-semibold uppercase tracking-[0.15em] mb-4">Pricing</p>
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Simple, transparent pricing</h2>
-        <p className="text-white/40 text-lg">Start free. Scale as you grow.</p>
+    <section className="py-32 px-6">
+      <div className="text-center mb-16">
+        <p className="text-[11px] text-emerald-500/70 uppercase tracking-[0.25em] font-bold mb-4">Pricing</p>
+        <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-4">
+          <span className="italic bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Scalable</span>
+          <span className="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent"> pricing.</span>
+        </h2>
+        <p className="text-slate-500 text-sm">Built to grow with your engineering team.</p>
       </div>
-
       <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
-        <PriceCard
-          title="Starter"
-          price="$0"
-          period="/month"
-          features={["5 assessments", "Basic analytics", "Email support"]}
-        />
-        <PriceCard
-          title="Growth"
-          price="$49"
-          period="/month"
-          highlighted
-          features={[
-            "Unlimited assessments",
-            "Advanced insights",
-            "Priority support",
-            "Custom branding",
-          ]}
-        />
-        <PriceCard
-          title="Enterprise"
-          price="Custom"
-          period=""
-          features={["Custom integrations", "Dedicated support", "SLA", "SSO"]}
-        />
+        <PriceCard title="Starter" price="$0" features={["5 assessments / month", "Basic AI scoring", "Email support"]} />
+        <PriceCard title="Growth" price="$49" highlighted features={["Unlimited assessments", "Advanced AI analytics", "Priority support", "Custom branding"]} />
+        <PriceCard title="Enterprise" price="Custom" features={["Custom integrations", "Dedicated CSM", "SLA & SSO", "Team management"]} />
       </div>
     </section>
   );
 }
 
-function PriceCard({
-  title,
-  price,
-  period,
-  features,
-  highlighted,
-}: {
-  title: string;
-  price: string;
-  period: string;
-  features: string[];
-  highlighted?: boolean;
-}) {
+function PriceCard({ title, price, features, highlighted }: any) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className={`rounded-2xl p-8 border relative overflow-hidden transition-all duration-300 ${highlighted
-        ? "border-green-500/30 bg-green-500/5 shadow-xl shadow-green-500/5 scale-[1.02]"
-        : "border-white/5 bg-zinc-900/30 hover:border-white/10"
-        }`}
+      className={`p-8 rounded-2xl border transition-all duration-500 relative overflow-hidden ${highlighted ? 'bg-emerald-500/5 border-emerald-500/30 shadow-2xl shadow-emerald-500/10 md:scale-105' : 'bg-zinc-900/40 border-white/[0.06] hover:border-white/10'}`}
     >
       {highlighted && (
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-green-500 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
       )}
-      <div className="mb-8">
-        <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wider mb-4">{title}</h3>
-        <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-bold text-white">{price}</span>
-          {period && <span className="text-white/30 text-sm">{period}</span>}
-        </div>
-      </div>
-
-      <ul className="space-y-3 mb-8">
-        {features.map((f) => (
-          <li key={f} className="flex items-center gap-3 text-sm text-white/50">
-            <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+      <h3 className={`text-[11px] font-black uppercase tracking-widest mb-6 ${highlighted ? 'text-emerald-400' : 'text-slate-600'}`}>{title}</h3>
+      <div className="text-4xl font-black mb-1">{price}</div>
+      {price !== "Custom" && <p className="text-slate-600 text-xs mb-8">/month</p>}
+      {price === "Custom" && <p className="text-slate-600 text-xs mb-8">contact us</p>}
+      <ul className="space-y-3.5 mb-10">
+        {features.map((f: string) => (
+          <li key={f} className="flex items-center gap-3 text-sm text-slate-400">
+            <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
             {f}
           </li>
         ))}
       </ul>
-
-      <button className={`w-full py-3 rounded-xl font-semibold text-sm transition-all cursor-pointer ${highlighted
-        ? "bg-green-500 text-black hover:bg-green-400 shadow-lg shadow-green-500/20"
-        : "bg-white/5 text-white border border-white/10 hover:bg-white/10"
-        }`}>
+      <button className={`cursor-pointer w-full py-3.5 rounded-xl font-bold text-sm transition-all ${highlighted ? 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-white/5 hover:bg-white/10 border border-white/5'}`}>
         {highlighted ? "Get Started" : "Choose Plan"}
       </button>
     </motion.div>
@@ -370,16 +290,19 @@ function PriceCard({
 
 function CTA() {
   return (
-    <section className="relative py-32 text-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-500/5 to-transparent pointer-events-none" />
-      <div className="relative z-10">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Ready to transform hiring?</h2>
-        <p className="text-white/40 text-lg mb-12 max-w-lg mx-auto">
-          Join modern engineering teams using Devforces to find top talent.
+    <section className="py-32 px-6 text-center">
+      <div className="max-w-3xl mx-auto p-12 md:p-16 rounded-[2.5rem] bg-gradient-to-br from-emerald-500 to-emerald-600 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#ffffff22,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,#00000022,transparent_50%)]" />
+        <h2 className="text-3xl md:text-5xl font-black text-black mb-4 relative z-10 tracking-tighter leading-tight">
+          Ready to <span className="italic">evolve</span> your<br />hiring process?
+        </h2>
+        <p className="text-black/60 text-sm md:text-base mb-8 relative z-10 max-w-md mx-auto">
+          Join hundreds of engineering teams using AI-powered assessments to find top talent.
         </p>
         <SignUpButton mode="modal">
-          <button className="bg-green-500 hover:bg-green-400 text-black px-10 py-5 rounded-2xl text-lg font-bold shadow-xl shadow-green-500/20 transition-all hover:shadow-green-500/30 cursor-pointer">
-            Get Started Free
+          <button className="cursor-pointer bg-black text-white px-12 py-5 rounded-2xl text-lg font-black transition-all hover:bg-zinc-800 shadow-2xl relative z-10">
+            Join Devforces Now
           </button>
         </SignUpButton>
       </div>
@@ -389,14 +312,13 @@ function CTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-white/5 py-16 px-6">
-      <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-lg text-green-500 tracking-tighter">Devforces</span>
-          <span className="text-white/20 text-sm">|</span>
-          <span className="text-white/30 text-sm">Hire at ease</span>
+    <footer className="border-t border-white/5 py-12 px-6">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex items-center gap-3">
+          <span className="font-black text-xl text-white tracking-tighter">Devforces</span>
+          <span className="text-slate-600 text-sm italic">/ AI-powered hiring.</span>
         </div>
-        <p className="text-sm text-white/20">
+        <p className="text-[11px] font-bold text-slate-700 tracking-widest uppercase">
           © {new Date().getFullYear()} Devforces Inc. All rights reserved.
         </p>
       </div>

@@ -45,7 +45,7 @@ export default function RootLayout({
               shadow-[0_8px_32px_rgba(0,0,0,0.5)]
             ">
 
-              <Link href="/" className="font-bold text-lg text-green-500 tracking-tighter hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.4)] transition-all">
+              <Link href="/" className="font-black text-lg text-emerald-500 tracking-tighter hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] transition-all">
                 Devforces
               </Link>
 
@@ -58,9 +58,9 @@ export default function RootLayout({
                   </SignInButton>
                   <SignUpButton mode="modal">
                     <button className="
-                      bg-white text-black px-4 py-1.5 
+                      cursor-pointer bg-white text-black px-4 py-1.5 
                       rounded-full font-bold text-xs 
-                      hover:bg-green-500 hover:text-white
+                      hover:bg-emerald-500 hover:text-white
                       transition-all active:scale-95
                     ">
                       Sign Up

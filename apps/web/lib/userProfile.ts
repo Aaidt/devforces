@@ -51,14 +51,37 @@ export function useProfile() {
         async function fetchIt() {
             try {
                 const token = await getToken();
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/me`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = res.data;
-                if (data.first_name && data.profile_pic_url) {
-                    cache.set(key, data);
-                    setProfile(data);
+
+                // Try user /me first
+                try {
+                    const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/me`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const data = res.data;
+                    if (data.first_name && data.profile_pic_url) {
+                        cache.set(key, data);
+                        setProfile(data);
+                        return;
+                    }
+                } catch (e) {
+                    // User endpoint failed, try admin
                 }
+
+                // Try admin /me
+                try {
+                    const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/admin/me`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const data = res.data;
+                    if (data.first_name && data.profile_pic_url) {
+                        cache.set(key, data);
+                        setProfile(data);
+                        return;
+                    }
+                } catch (e) {
+                    // Admin endpoint also failed
+                }
+
             } catch (e) {
                 console.error(e);
             } finally {

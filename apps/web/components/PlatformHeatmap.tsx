@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 
 type ActivityMap = { [timestamp: string]: number };
 
-export function PlatformHeatmap({ platform, username }: { platform: "leetcode" | "codeforces", username: string }) {
+export function PlatformHeatmap({
+  platform,
+  username,
+}: {
+  platform: "leetcode" | "codeforces";
+  username: string;
+}) {
   const [data, setData] = useState<ActivityMap>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -32,7 +38,8 @@ export function PlatformHeatmap({ platform, username }: { platform: "leetcode" |
           if (res.status === "OK") {
             const map: ActivityMap = {};
             res.result.forEach((sub: any) => {
-              const dayStamp = Math.floor(sub.creationTimeSeconds / 86400) * 86400;
+              const dayStamp =
+                Math.floor(sub.creationTimeSeconds / 86400) * 86400;
               map[dayStamp] = (map[dayStamp] || 0) + 1;
             });
             setData(map);
@@ -48,21 +55,32 @@ export function PlatformHeatmap({ platform, username }: { platform: "leetcode" |
     }
   }, [platform, username]);
 
-  if (loading) return <div className="h-32 text-zinc-500 flex items-center justify-center animate-pulse text-sm">Fetching {platform} activity...</div>;
-  if (error) return <div className="h-32 text-red-500/50 flex items-center justify-center text-sm">Failed to load {platform} data.</div>;
+  if (loading)
+    return (
+      <div className="h-32 text-zinc-500 flex items-center justify-center animate-pulse text-sm">
+        Fetching {platform} activity...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="h-32 text-red-500/50 flex items-center justify-center text-sm">
+        Failed to load {platform} data.
+      </div>
+    );
 
   const today = new Date();
   today.setHours(23, 59, 59, 999);
   const oneYearAgo = new Date(today.getTime() - 364 * 24 * 60 * 60 * 1000);
   oneYearAgo.setHours(0, 0, 0, 0);
 
-  const days: { date: Date, count: number }[] = [];
-  
+  const days: { date: Date; count: number }[] = [];
+
   const activityByDateId: Record<string, number> = {};
-  Object.keys(data).forEach(timestamp => {
+  Object.keys(data).forEach((timestamp) => {
     const d = new Date(parseInt(timestamp) * 1000);
     const dateId = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    activityByDateId[dateId] = (activityByDateId[dateId] || 0) + data[timestamp]!;
+    activityByDateId[dateId] =
+      (activityByDateId[dateId] || 0) + data[timestamp]!;
   });
 
   for (let i = 0; i <= 365; i++) {
@@ -74,11 +92,11 @@ export function PlatformHeatmap({ platform, username }: { platform: "leetcode" |
     });
   }
 
-  const columns: { date: Date, count: number }[][] = [];
-  let currentColumn: { date: Date, count: number }[] = [];
-  
-  for(let i = 0; i < (days[0]?.date.getDay() || 0); i++) {
-     currentColumn.push({ date: new Date(0), count: -1 }); 
+  const columns: { date: Date; count: number }[][] = [];
+  let currentColumn: { date: Date; count: number }[] = [];
+
+  for (let i = 0; i < (days[0]?.date.getDay() || 0); i++) {
+    currentColumn.push({ date: new Date(0), count: -1 });
   }
 
   days.forEach((day, index) => {
@@ -90,14 +108,15 @@ export function PlatformHeatmap({ platform, username }: { platform: "leetcode" |
   });
 
   if (currentColumn.length > 0) {
-    while(currentColumn.length < 7) currentColumn.push({ date: new Date(0), count: -1 });
+    while (currentColumn.length < 7)
+      currentColumn.push({ date: new Date(0), count: -1 });
     columns.push(currentColumn);
   }
 
   const getColorClass = (count: number) => {
-    if (count < 0) return "bg-transparent opacity-0 pointer-events-none"; 
+    if (count < 0) return "bg-transparent opacity-0 pointer-events-none";
     if (count === 0) return "bg-zinc-800/80";
-    
+
     if (platform === "leetcode") {
       if (count === 1) return "bg-yellow-600/50";
       if (count <= 3) return "bg-yellow-500/80";
@@ -111,20 +130,96 @@ export function PlatformHeatmap({ platform, username }: { platform: "leetcode" |
     }
   };
 
+  // Build month labels from columns
+  const monthLabels: { label: string; colIndex: number }[] = [];
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  let lastMonth = -1;
+  columns.forEach((col, cIdx) => {
+    // Find the first valid day in this column
+    const firstValid = col.find((d) => d.count >= 0);
+    if (firstValid) {
+      const m = firstValid.date.getMonth();
+      if (m !== lastMonth) {
+        monthLabels.push({ label: monthNames[m]!, colIndex: cIdx });
+        lastMonth = m;
+      }
+    }
+  });
+
+  const dayLabels = ["", "Mon", "", "Wed", "", "Fri", ""];
+
   return (
-    <div className="w-full flex justify-center py-2 overflow-hidden">
-      <div className="flex gap-[3px] items-start">
-        {columns.map((col, cIdx) => (
-          <div key={cIdx} className="flex flex-col gap-[3px] hover:-translate-y-1 transition-transform duration-300">
-            {col.map((day, dIdx) => (
+    <div className="w-full overflow-x-auto py-2">
+      <div
+        className="flex flex-col items-start"
+        style={{ width: "max-content" }}
+      >
+        {/* Month labels row */}
+        <div className="flex ml-7 mb-0.5">
+          {columns.map((_, cIdx) => {
+            const ml = monthLabels.find((m) => m.colIndex === cIdx);
+            return (
               <div
-                key={dIdx}
-                className={`w-[10px] h-[10px] rounded-[2px] ${getColorClass(day.count)} transition-all hover:scale-150 origin-center`}
-                title={day.count >= 0 ? `${day.count} submissions on ${day.date.toDateString()}` : undefined}
-              />
+                key={cIdx}
+                className="w-[8px] mx-[1px] flex-shrink-0 relative h-3"
+              >
+                {ml && (
+                  <span className="text-[8px] text-zinc-500 font-medium absolute top-0 left-0">
+                    {ml.label}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex items-start">
+          {/* Day labels */}
+          <div className="flex flex-col gap-[2px] mr-1 pt-0">
+            {dayLabels.map((label, i) => (
+              <div
+                key={i}
+                className="h-[8px] flex items-center justify-end w-5"
+              >
+                <span className="text-[8px] text-zinc-500 font-medium">
+                  {label}
+                </span>
+              </div>
             ))}
           </div>
-        ))}
+
+          {/* Grid */}
+          <div className="flex gap-[2px] items-start">
+            {columns.map((col, cIdx) => (
+              <div key={cIdx} className="flex flex-col gap-[2px]">
+                {col.map((day, dIdx) => (
+                  <div
+                    key={dIdx}
+                    className={`w-[8px] h-[8px] rounded-[1px] ${getColorClass(day.count)}`}
+                    title={
+                      day.count >= 0
+                        ? `${day.count} submissions on ${day.date.toDateString()}`
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

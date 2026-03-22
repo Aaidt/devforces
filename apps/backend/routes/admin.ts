@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
 import { prismaClient } from "@repo/db/prismaClient";
@@ -139,6 +139,50 @@ adminRouter.get("/hiring/posts", adminMiddleware, async (req, res) => {
    } catch (err) {
       console.log(err);
       res.status(500).json({ message: "Server error: Failed to fetch hiring posts" });
+   }
+});
+
+adminRouter.get("/me", adminMiddleware, async (req, res) => {
+   const user_id = req.user_id;
+
+   try {
+      let userStr = await redis.get(`user:${user_id}`);
+      let user;
+
+      if (userStr) {
+         user = JSON.parse(userStr);
+      } else {
+         user = await prismaClient.user.findUnique({
+            where: { clerk_id: user_id }
+         });
+         if (user) {
+            await redis.set(`user:${user_id}`, JSON.stringify(user), 'EX', 3600);
+         }
+      }
+
+      if (!user) {
+         res.status(404).json({ message: "Admin not found" });
+         return;
+      }
+
+      let profilePicUrl = null;
+      if (user.profile_pic_key) {
+         const command = new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: user.profile_pic_key
+         });
+         // @ts-ignore
+         profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
+      }
+
+      res.status(200).json({
+         first_name: user.first_name || user.company_name || "Admin",
+         profile_pic_url: profilePicUrl,
+         user
+      });
+   } catch (err) {
+      console.log("Error while fetching from admin /me endpoint: ", err);
+      res.status(500).json({ message: "Server error fetching admin" });
    }
 });
 

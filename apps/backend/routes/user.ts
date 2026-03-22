@@ -100,7 +100,7 @@ userRouter.post("/details/confirm", async (req, res) => {
 
 userRouter.post("/resume/upload_url", async (req, res) => {
    const result = resumeSchema.safeParse(req.body);
-   if(!result.success){
+   if (!result.success) {
       console.log("Invalid resume details");
       res.status(400).json({ message: "Invalid resume details" });
       return;
@@ -207,7 +207,7 @@ userRouter.get("/me", async (req, res) => {
       let userStr = await redis.get(`user:${user_id}`);
       console.log("got from userStr ", userStr);
       let user;
-      
+
       if (userStr) {
          user = JSON.parse(userStr);
       } else {
@@ -218,19 +218,19 @@ userRouter.get("/me", async (req, res) => {
             await redis.set(`user:${user_id}`, JSON.stringify(user), 'EX', 3600);
          }
       }
-      
+
       if (!user) {
          res.status(404).json({ message: "User not found" });
          return;
       }
-      
+
       let profilePicUrl = null;
       if (user.profile_pic_key) {
          const command = new GetObjectCommand({
             Bucket: BUCKET_NAME,
             Key: user.profile_pic_key
          });
-         // @ts-ignore
+
          profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
       }
 
