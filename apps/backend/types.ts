@@ -27,3 +27,12 @@ export const companyDetailsSchema = z.object({
    companyWebsite: z.string().url("Valid website URL is required").optional(),
    companyEmployees: z.number()
 });
+
+export const hiringPostSchema = z.object({
+   jobTitle: z.string().min(1, "Job title is required"),
+   jobDescription: z.string().min(1, "Job description is required"),
+   requirements: z.string().min(1, "Requirements are required"),
+   contestTitle: z.string().min(1, "Contest title is required"),
+   deadline: z.string().min(1, "Deadline is required"),
+   startTime: z.string().min(1, "Start time is required"),
+});

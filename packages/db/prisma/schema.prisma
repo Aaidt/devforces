@@ -54,10 +54,29 @@ model User {
 
    role Role
 
-   leaderboards Leaderboard[]
-   submissions  Submission[]
+   leaderboards  Leaderboard[]
+   submissions   Submission[]
+   hiring_posts  HiringPost[]
+   contests      Contest[]
 
    @@index([clerk_id])
+}
+
+model HiringPost {
+   id              String   @id @default(uuid())
+   job_title       String
+   job_description String
+   requirements    String
+   is_active       Boolean  @default(true)
+   created_at      DateTime @default(now())
+   updated_at      DateTime @updatedAt
+
+   admin_id   String
+   admin      User     @relation(fields: [admin_id], references: [clerk_id])
+   contest_id String?  @unique
+   contest    Contest? @relation(fields: [contest_id], references: [id])
+
+   @@index([admin_id])
 }
 
 model Contest {
@@ -66,6 +85,10 @@ model Contest {
    deadline   DateTime
    start_time DateTime
 
+   admin_id String?
+   admin    User?   @relation(fields: [admin_id], references: [clerk_id])
+
+   hiring_post                  HiringPost?
    leaderboards                 Leaderboard[]
    contest_to_challenge_mapping Contest_to_Challenge_mapping[]
 }

@@ -18,7 +18,12 @@ type Profile = {
         gh_url: string,
         lc_url?: string,
         cf_url?: string,
-        wakatime_api?: string
+        wakatime_api?: string,
+        role: "user" | "admin",
+        company_name?: string,
+        company_description?: string,
+        company_website?: string,
+        company_employees?: number,
     }
 };
 

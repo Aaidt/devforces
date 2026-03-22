@@ -4,8 +4,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
 import { prismaClient } from "@repo/db/prismaClient";
 import { get_redisClient } from "@repo/redisClient/redis-client";
-import { profilePicSchema, companyDetailsSchema } from "../types";
+import { profilePicSchema, companyDetailsSchema, hiringPostSchema } from "../types";
 import { userMiddleware } from "../middleware/user";
+import { adminMiddleware } from "../middleware/admin";
 
 const adminRouter = Router();
 const redis = get_redisClient();
@@ -80,8 +81,65 @@ adminRouter.post("/hiring/details/confirm", userMiddleware, async (req, res) => 
    }
 });
 
-adminRouter.get("/", (req, res) => {
-  res.send("Admin Router Ready");
+adminRouter.post("/hiring/post", adminMiddleware, async (req, res) => {
+   const result = hiringPostSchema.safeParse(req.body);
+   if (!result.success) {
+      res.status(400).json({ message: "Invalid hiring post details" });
+      return;
+   }
+
+   const { jobTitle, jobDescription, requirements, contestTitle, deadline, startTime } = result.data;
+   const user_id = req.user_id;
+
+   try {
+      const result = await prismaClient.$transaction(async (tx) => {
+         const contest = await tx.contest.create({
+            data: {
+               title: contestTitle,
+               deadline: new Date(deadline),
+               start_time: new Date(startTime),
+               admin_id: user_id
+            }
+         });
+
+         const hiringPost = await tx.hiringPost.create({
+            data: {
+               job_title: jobTitle,
+               job_description: jobDescription,
+               requirements: requirements,
+               admin_id: user_id,
+               contest_id: contest.id
+            }
+         });
+
+         return { contest, hiringPost };
+      });
+
+      res.status(200).json({
+         message: "Hiring post created and contest launched!",
+         success: true,
+         contestId: result.contest.id,
+         hiringPostId: result.hiringPost.id
+      });
+   } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Server error: Failed to create hiring post" });
+   }
+});
+
+adminRouter.get("/hiring/posts", adminMiddleware, async (req, res) => {
+   const user_id = req.user_id;
+   try {
+      const posts = await prismaClient.hiringPost.findMany({
+         where: { admin_id: user_id },
+         include: { contest: true },
+         orderBy: { created_at: "desc" }
+      });
+      res.status(200).json({ posts });
+   } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Server error: Failed to fetch hiring posts" });
+   }
 });
 
 export default adminRouter;
