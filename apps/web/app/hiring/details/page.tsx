@@ -14,6 +14,7 @@ export default function HiringDetails() {
         companyDescription: "",
         companyWebsite: "",
         companyEmployees: "",
+        recruiterEmail: "",
         profile_pic: null as File | null
     })
     const [preview, setPreview] = useState<string | null>(null)
@@ -58,7 +59,10 @@ export default function HiringDetails() {
                 pic_name: form.profile_pic.name,
                 pic_type: form.profile_pic.type
             }, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    "x-recruiter-email": form.recruiterEmail
+                }
             })
 
             if (!urlData.url) throw new Error("Failed to get upload URL")
@@ -73,7 +77,10 @@ export default function HiringDetails() {
                 companyWebsite: form.companyWebsite || undefined,
                 companyEmployees: Number(form.companyEmployees)
             }, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    "x-recruiter-email": form.recruiterEmail
+                }
             })
 
             router.push("/")
@@ -145,6 +152,13 @@ export default function HiringDetails() {
                                     placeholder="50"
                                     className="w-full bg-zinc-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 transition-all" />
                             </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 ml-1">Work Email <span className="text-red-500">*</span></label>
+                            <input required type="email" name="recruiterEmail" value={form.recruiterEmail} onChange={handleChange} 
+                                placeholder="founder@acme.com"
+                                className="w-full bg-zinc-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 transition-all" />
                         </div>
 
                         <div className="space-y-1.5">

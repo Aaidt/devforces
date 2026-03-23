@@ -1,9 +1,5 @@
 import { Router } from "express";
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  HeadObjectCommand,
-} from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
 import { prismaClient } from "@repo/db/prismaClient";
@@ -43,17 +39,8 @@ userRouter.post("/profile_pic/url", async (req, res) => {
 
     res.status(200).json({ url });
   } catch (err) {
-    console.log(
-      "Server error: Failed to get presigned url for profile_pic upload, err: " +
-      err,
-    );
-    res
-      .status(500)
-      .json({
-        message:
-          "Server error: Failed to get presigned url for profile_pic upload, err: " +
-          err,
-      });
+    console.log("Server error: Failed to get presigned url for profile_pic upload, err: " + err);
+    res.status(500).json({ message: "Server error: Failed to get presigned url for profile_pic upload, err: " + err });
   }
 });
 
@@ -65,19 +52,14 @@ userRouter.post("/details/confirm", async (req, res) => {
     return;
   }
 
-  const { firstName, lastName, phone, email, bio, ghUrl, lcUrl, cfUrl, wakatimeApi } =
-    result.data;
+  const { firstName, lastName, phone, email, bio, ghUrl, lcUrl, cfUrl, wakatimeApi } = result.data;
   const user_id = req.user_id;
 
   const key = await redis.get(`pending:user:${user_id}:profile_pic`);
   console.log("pending:user:profile_pic found in redis");
   if (!key) {
     console.log("No key found for profile_pic obj of user: " + user_id);
-    res
-      .status(404)
-      .json({
-        message: `No key found for profile_pic obj of user: ${user_id}`,
-      });
+    res.status(404).json({ message: `No key found for profile_pic obj of user: ${user_id}` });
     return;
   }
 
@@ -110,20 +92,10 @@ userRouter.post("/details/confirm", async (req, res) => {
     await redis.del(`pending:user:${user_id}:profile_pic`);
     console.log("pending:user deleted from redis");
 
-    res
-      .status(200)
-      .json({
-        message: "Candidates details updated succesfuly",
-        success: true,
-      });
+    res.status(200).json({ message: "Candidates details updated succesfuly", success: true });
   } catch (err) {
     console.log("Server error while updating users profile_pic_key: ", err);
-    res
-      .status(500)
-      .json({
-        message: "Server error: Failed to update users profile_pic_key: ",
-        err,
-      });
+    res.status(500).json({ message: "Server error: Failed to update users profile_pic_key: ", err });
   }
 });
 
@@ -159,13 +131,7 @@ userRouter.post("/resume/upload_url", async (req, res) => {
     res.status(200).json({ url });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({
-        message:
-          "Server error: Failed to get presigned url for resume upload, err: " +
-          err,
-      });
+    res.status(500).json({ message: "Server error: Failed to get presigned url for resume upload, err: " + err });
   }
 });
 
@@ -176,9 +142,7 @@ userRouter.post("/resume/confirm", async (req, res) => {
   console.log("pending:user:resume found in redis");
   if (!key) {
     console.log("No resume key found for user: " + user_id);
-    res
-      .status(404)
-      .json({ message: `No resume key found for user: ${user_id}` });
+    res.status(404).json({ message: `No resume key found for user: ${user_id}` });
     return;
   }
 
@@ -203,11 +167,7 @@ userRouter.post("/resume/confirm", async (req, res) => {
     res.status(200).json({ success: true });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({
-        message: "Server error: Failed to confirm resume upload, err: " + err,
-      });
+    res.status(500).json({ message: "Server error: Failed to confirm resume upload, err: " + err });
   }
 });
 
@@ -237,9 +197,7 @@ userRouter.get("/resume", async (req, res) => {
     (response.Body as any).pipe(res);
   } catch (err) {
     console.log("error: " + err);
-    res
-      .status(500)
-      .json({ message: "Server error: Failed to get resume, err: " + err });
+    res.status(500).json({ message: "Server error: Failed to get resume, err: " + err });
   }
 });
 
@@ -248,73 +206,29 @@ userRouter.get("/contests", async (req, res) => {
 
   try {
     const pastContests = await prismaClient.contest.findMany({
-      where: {
-        deadline: { lt: now },
-      },
-      include: {
-        hiring_post: {
-          include: {
-            recruiter: {
-              select: {
-                company_name: true,
-              },
-            },
-          },
-        },
-      },
+      where: { deadline: { lt: now } },
+      include: { hiring_post: { include: { recruiter: { select: { company_name: true } } } } },
       orderBy: { deadline: "desc" },
       take: 10,
     });
 
     const currentContests = await prismaClient.contest.findMany({
-      where: {
-        start_time: { lte: now },
-        deadline: { gte: now },
-      },
+      where: { start_time: { lte: now }, deadline: { gte: now } },
       include: {
-        hiring_post: {
-          include: {
-            recruiter: {
-              select: {
-                company_name: true,
-              },
-            },
-          },
-        },
-        contest_to_challenge_mapping: {
-          include: {
-            challenge: true,
-          },
-          orderBy: { position: "asc" },
-        },
+        hiring_post: { include: { recruiter: { select: { company_name: true } } } },
+        contest_to_challenge_mapping: { include: { challenge: true }, orderBy: { position: "asc" } },
       },
       orderBy: { start_time: "desc" },
     });
 
     const futureContests = await prismaClient.contest.findMany({
-      where: {
-        start_time: { gt: now },
-      },
-      include: {
-        hiring_post: {
-          include: {
-            recruiter: {
-              select: {
-                company_name: true,
-              },
-            },
-          },
-        },
-      },
+      where: { start_time: { gt: now } },
+      include: { hiring_post: { include: { recruiter: { select: { company_name: true } } } } },
       orderBy: { start_time: "asc" },
       take: 10,
     });
 
-    res.status(200).json({
-      past: pastContests,
-      current: currentContests,
-      future: futureContests,
-    });
+    res.status(200).json({ past: pastContests, current: currentContests, future: futureContests });
   } catch (err) {
     console.log("Error fetching contests:", err);
     res.status(500).json({ message: "Server error: Failed to fetch contests" });
@@ -341,9 +255,7 @@ userRouter.get("/contests/:contestId", async (req, res) => {
           },
         },
         contest_to_challenge_mapping: {
-          include: {
-            challenge: true,
-          },
+          include: { challenge: true },
           orderBy: { position: "asc" },
         },
       },
@@ -357,16 +269,10 @@ userRouter.get("/contests/:contestId", async (req, res) => {
     const userSubmission = await prismaClient.submission.findMany({
       where: {
         candidate_id: user_id,
-        contest_to_challenge_mapping: {
-          contest_id: contestId,
-        },
+        contest_to_challenge_mapping: { contest_id: contestId },
       },
       include: {
-        contest_to_challenge_mapping: {
-          include: {
-            challenge: true,
-          },
-        },
+        contest_to_challenge_mapping: { include: { challenge: true } },
       },
     });
 
@@ -374,15 +280,10 @@ userRouter.get("/contests/:contestId", async (req, res) => {
       userSubmission.map((s) => [s.contest_to_challenge_mapping_id, s]),
     );
 
-    res.status(200).json({
-      contest,
-      submissions: submissionMap,
-    });
+    res.status(200).json({ contest, submissions: submissionMap });
   } catch (err) {
     console.log("Error fetching contest details:", err);
-    res
-      .status(500)
-      .json({ message: "Server error: Failed to fetch contest details" });
+    res.status(500).json({ message: "Server error: Failed to fetch contest details" });
   }
 });
 
@@ -397,7 +298,7 @@ userRouter.get("/me", async (req, res) => {
     if (userStr) {
       user = JSON.parse(userStr);
     } else {
-      user = await prismaClient.candidate.findUnique({
+      user = await prismaClient.candidate.findFirst({
         where: { clerk_id: user_id, deleted_at: null },
       });
       if (user) {
@@ -412,12 +313,16 @@ userRouter.get("/me", async (req, res) => {
 
     let profilePicUrl = null;
     if (user.profile_pic_key) {
-      const command = new GetObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: user.profile_pic_key,
-      });
+      if (user.profile_pic_key.startsWith("http")) {
+        profilePicUrl = user.profile_pic_key;
+      } else {
+        const command = new GetObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: user.profile_pic_key,
+        });
 
-      profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
+        profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
+      }
     }
 
     res.status(200).json({

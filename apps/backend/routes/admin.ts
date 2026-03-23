@@ -1,30 +1,19 @@
 import { Router } from "express";
-import {
-  PutObjectCommand,
-  HeadObjectCommand,
-  GetObjectCommand,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from "@/lib/r2";
 import { prismaClient } from "@repo/db/prismaClient";
 import { get_redisClient } from "@repo/redisClient/redis-client";
-import {
-  profilePicSchema,
-  companyDetailsSchema,
-  hiringPostSchema,
-} from "../types";
+import { profilePicSchema, companyDetailsSchema, hiringPostSchema } from "../types";
 import { userMiddleware } from "../middleware/user";
 import { adminMiddleware } from "../middleware/admin";
-import {
-  generateQuestions,
-  generateFallbackQuestions,
-} from "../lib/ai-question-generator";
+import { generateQuestions, generateFallbackQuestions } from "../lib/ai-question-generator";
 
 const adminRouter = Router();
 const redis = get_redisClient();
 const BUCKET_NAME = process.env.BUCKET_NAME as string;
 
-adminRouter.post("/hiring/profile_pic/url", userMiddleware, async (req, res) => {
+adminRouter.post("/hiring/profile_pic/url", adminMiddleware, async (req, res) => {
   const result = profilePicSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ message: "Invalid profile pic details" });
@@ -54,19 +43,14 @@ adminRouter.post("/hiring/profile_pic/url", userMiddleware, async (req, res) => 
 },
 );
 
-adminRouter.post("/hiring/details/confirm", userMiddleware, async (req, res) => {
+adminRouter.post("/hiring/details/confirm", adminMiddleware, async (req, res) => {
   const result = companyDetailsSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ message: "Invalid details" });
     return;
   }
 
-  const {
-    companyName,
-    companyDescription,
-    companyWebsite,
-    companyEmployees,
-  } = result.data;
+  const { companyName, companyDescription, companyWebsite, companyEmployees } = result.data;
   const user_id = req.user_id;
 
   const key = await redis.get(`pending:company:${user_id}:profile_pic`);
@@ -109,15 +93,7 @@ adminRouter.post("/hiring/post", adminMiddleware, async (req, res) => {
     return;
   }
 
-  const {
-    jobTitle,
-    jobDescription,
-    requirements,
-    contestTitle,
-    deadline,
-    startTime,
-    questionConfig,
-  } = result.data;
+  const { jobTitle, jobDescription, requirements, contestTitle, deadline, startTime, questionConfig } = result.data;
   const user_id = req.user_id;
 
   try {
@@ -153,10 +129,7 @@ adminRouter.post("/hiring/post", adminMiddleware, async (req, res) => {
             requirements,
           });
         } catch (err) {
-          console.error(
-            "Failed to generate questions with AI, using fallback:",
-            err,
-          );
+          console.error("Failed to generate questions with AI, using fallback:", err);
           generatedQuestions = generateFallbackQuestions({
             questionTypes: questionConfig.questionTypes,
             questionsPerType: questionConfig.questionsPerType,
@@ -219,9 +192,7 @@ adminRouter.get("/hiring/posts", adminMiddleware, async (req, res) => {
     res.status(200).json({ posts });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({ message: "Server error: Failed to fetch hiring posts" });
+    res.status(500).json({ message: "Server error: Failed to fetch hiring posts" });
   }
 });
 
@@ -229,17 +200,17 @@ adminRouter.get("/me", adminMiddleware, async (req, res) => {
   const user_id = req.user_id;
 
   try {
-    let userStr = await redis.get(`user:${user_id}`);
+    let userStr = await redis.get(`recruiter:${user_id}`);
     let user;
 
     if (userStr) {
       user = JSON.parse(userStr);
     } else {
-      user = await prismaClient.recruiter.findUnique({
+      user = await prismaClient.recruiter.findFirst({
         where: { clerk_id: user_id, deleted_at: null },
       });
       if (user) {
-        await redis.set(`user:${user_id}`, JSON.stringify(user), "EX", 3600);
+        await redis.set(`recruiter:${user_id}`, JSON.stringify(user), "EX", 3600);
       }
     }
 
@@ -249,14 +220,18 @@ adminRouter.get("/me", adminMiddleware, async (req, res) => {
     }
 
     let profilePicUrl = null;
-    /* if (user.profile_pic_key) {
-      const command = new GetObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: user.profile_pic_key,
-      });
-      // @ts-ignore
-      profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
-    } */
+    if (user.profile_pic_key) {
+      if (user.profile_pic_key.startsWith("http")) {
+        profilePicUrl = user.profile_pic_key;
+      } else {
+        const command = new GetObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: user.profile_pic_key,
+        });
+        // @ts-ignore
+        profilePicUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
+      }
+    }
 
     res.status(200).json({
       first_name: user.first_name || user.company_name || "Admin",

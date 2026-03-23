@@ -2,7 +2,7 @@ import { verifyToken } from "@clerk/backend";
 import { prismaClient } from "@repo/db/prismaClient";
 import type { Request, Response, NextFunction } from "express";
 
-export const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export async function adminMiddleware(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization as string;
 
     if (!authHeader || !authHeader?.startsWith("Bearer ")) {
@@ -17,6 +17,7 @@ export const adminMiddleware = async (req: Request, res: Response, next: NextFun
             secretKey: process.env.CLERK_SECRET_KEY,
             audience: "backend"
         });
+        console.log(decoded)
 
         if (!decoded.sub) {
             res.status(401).json({ error: "Unauthorized: no sub field" });
@@ -25,13 +26,18 @@ export const adminMiddleware = async (req: Request, res: Response, next: NextFun
 
         req.user_id = decoded.sub as string;
 
+        const reqEmail = req.headers["x-recruiter-email"] as string;
+
         try {
-            const user = await prismaClient.recruiter.upsert({
+            await prismaClient.recruiter.upsert({
                 where: { clerk_id: decoded.sub },
-                update: {},
+                update: {
+                    // Update email if it's provided in headers (in case it wasn't set earlier)
+                    ...(reqEmail ? { email: reqEmail } : {})
+                },
                 create: {
                     clerk_id: decoded.sub,
-                    email: decoded.email as string,
+                    email: reqEmail || (decoded.email as string) || "",
                 }
             });
 
@@ -40,7 +46,6 @@ export const adminMiddleware = async (req: Request, res: Response, next: NextFun
             return;
         }
         next();
-
     } catch (error) {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
