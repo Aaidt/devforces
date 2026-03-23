@@ -7,11 +7,6 @@ datasource db {
    provider = "postgresql"
 }
 
-enum Role {
-   user
-   admin
-}
-
 enum Language {
    javascript
    typescript
@@ -29,8 +24,8 @@ enum Status {
    accepted
 }
 
-model User {
-   clerk_id        String   @id @unique
+model Candidate {
+   clerk_id        String   @id
    email           String   @unique
    email_verified  Boolean?
    first_name      String
@@ -44,22 +39,27 @@ model User {
    cf_url          String?
    wakatime_api    String?
 
+   created_at DateTime @default(now())
+   updated_at DateTime @updatedAt
+
+   leaderboards Leaderboard[]
+   submissions  Submission[]
+}
+
+model Recruiter {
+   clerk_id String @id
+
+   email               String   @unique
+   email_verified      Boolean?
    company_name        String?
    company_description String?
    company_website     String?
    company_employees   Int?
 
-   created_at      DateTime @default(now())
-   updated_at      DateTime @updatedAt
+   created_at DateTime @default(now())
+   updated_at DateTime @updatedAt
 
-   role Role
-
-   leaderboards  Leaderboard[]
-   submissions   Submission[]
-   hiring_posts  HiringPost[]
-   contests      Contest[]
-
-   @@index([clerk_id])
+   hiring_posts HiringPost[]
 }
 
 model HiringPost {
@@ -71,12 +71,13 @@ model HiringPost {
    created_at      DateTime @default(now())
    updated_at      DateTime @updatedAt
 
-   admin_id   String
-   admin      User     @relation(fields: [admin_id], references: [clerk_id])
+   recruiter_id String
+   recruiter    Recruiter @relation(fields: [recruiter_id], references: [clerk_id])
+
    contest_id String?  @unique
    contest    Contest? @relation(fields: [contest_id], references: [id])
 
-   @@index([admin_id])
+   @@index([recruiter_id])
 }
 
 model Contest {
@@ -84,9 +85,6 @@ model Contest {
    title      String   @unique
    deadline   DateTime
    start_time DateTime
-
-   admin_id String?
-   admin    User?   @relation(fields: [admin_id], references: [clerk_id])
 
    hiring_post                  HiringPost?
    leaderboards                 Leaderboard[]
@@ -107,42 +105,102 @@ model Contest_to_Challenge_mapping {
    @@unique([contest_id, position])
 }
 
+enum Difficulty {
+   easy
+   medium
+   hard
+}
+
+enum QuestionType {
+   mcq
+   dsa
+   project
+}
+
 model Challenge {
-   id            String @id @default(uuid())
-   title         String @unique
+   id            String     @id @default(uuid())
+   title         String     @unique
    max_pts       Int
    challenge_doc String
+   difficulty    Difficulty @default(medium)
+   question_type QuestionType
 
    contest_to_challenge_mapping Contest_to_Challenge_mapping[]
+
+   mcq     MCQChallenge?
+   dsa     DSAChallenge?
+   project ProjectChallenge?
+}
+
+model MCQChallenge {
+   id           String @id @default(uuid())
+   challenge_id String @unique
+   question     String
+   options      Json
+   correct_idx  Int
+
+   challenge Challenge @relation(fields: [challenge_id], references: [id], onDelete: Cascade)
+}
+
+model DSAChallenge {
+   id           String @id @default(uuid())
+   challenge_id String @unique
+
+   input_format  String
+   output_format String
+   constraints   String
+   test_cases    Json
+   hidden_cases  Json
+
+   challenge Challenge @relation(fields: [challenge_id], references: [id], onDelete: Cascade)
+}
+
+enum Project_type {
+   backend
+   frontend
+}
+
+model ProjectChallenge {
+   id                  String       @id @default(uuid())
+   project_type        Project_type
+   repo_template_url   String?
+   requirements        String
+   evaluation_criteria String
+   test_config         Json?
+
+   challenge_id String @unique
+
+   challenge Challenge @relation(fields: [challenge_id], references: [id], onDelete: Cascade)
 }
 
 model Submission {
-   id         String   @id @default(uuid())
-   points     Int
-   submission String
-   language   Language
-   status     Status
-   feedback   String?
-   user_id    String
-   created_at DateTime @default(now())
+   id              String    @id @default(uuid())
+   points          Int?
+   submission      String?
+   selected_option Int?
+   language        Language?
+   status          Status
+   feedback        String?
+   candidate_id    String
+   created_at      DateTime  @default(now())
 
-   user                            User                         @relation(fields: [user_id], references: [clerk_id])
+   candidate                       Candidate                    @relation(fields: [candidate_id], references: [clerk_id])
    contest_to_challenge_mapping_id String
    contest_to_challenge_mapping    Contest_to_Challenge_mapping @relation(fields: [contest_to_challenge_mapping_id], references: [id], onDelete: Cascade)
 
-   @@index([user_id])
+   @@index([candidate_id])
    @@index([contest_to_challenge_mapping_id])
 }
 
 model Leaderboard {
-   id         String @id @default(uuid())
-   rank       Int
-   contest_id String
-   user_id    String
+   id           String @id @default(uuid())
+   rank         Int
+   contest_id   String
+   candidate_id String
 
-   contest Contest @relation(fields: [contest_id], references: [id], onDelete: Cascade)
-   user    User    @relation(fields: [user_id], references: [clerk_id])
+   contest   Contest   @relation(fields: [contest_id], references: [id], onDelete: Cascade)
+   candidate Candidate @relation(fields: [candidate_id], references: [clerk_id])
 
-   @@unique([contest_id, user_id])
+   @@unique([contest_id, candidate_id])
    @@unique([contest_id, rank])
 }

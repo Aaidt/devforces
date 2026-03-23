@@ -46,7 +46,7 @@ app.post("/webhook/clerk", async (req, res) => {
             const email = email_addresses?.[0]?.email_address;
             const email_verified = email_addresses?.[0]?.verification?.status === 'verified';
 
-            await prismaClient.user.upsert({
+            await prismaClient.candidate.upsert({
                 where: { clerk_id: id },
                 update: {
                     first_name: first_name,
@@ -62,12 +62,12 @@ app.post("/webhook/clerk", async (req, res) => {
                     first_name,
                     last_name,
                     email_verified,
-                    role: "user"
                 }
             });
         } else if (evt.type === 'user.deleted') {
             const { id } = evt.data;
-            await prismaClient.user.delete({ where: { clerk_id: id } })
+            try { await prismaClient.candidate.delete({ where: { clerk_id: id } }) } catch (e) {}
+            try { await prismaClient.recruiter.delete({ where: { clerk_id: id } }) } catch (e) {}
         } else if (evt.type === 'user.updated') {
             //TODO: update the required fields 
         }

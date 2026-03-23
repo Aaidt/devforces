@@ -17,6 +17,7 @@ export default function CandidateDetails() {
   const [lcUrl, setLcUrl] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [cfUrl, setCfUrl] = useState<string>("");
+  const [wakatimeApi, setWakatimeApi] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const { getToken } = useAuth();
@@ -71,7 +72,7 @@ export default function CandidateDetails() {
 
       const confirmRes = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/details/confirm`,
-        { firstName, lastName, phone, email, bio, ghUrl, lcUrl, cfUrl },
+        { firstName, lastName, phone, email, bio, ghUrl, lcUrl, cfUrl, wakatimeApi },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -232,6 +233,12 @@ export default function CandidateDetails() {
                     value={cfUrl}
                     onChange={setCfUrl}
                     placeholder="https://codeforces.com/profile/username"
+                  />
+                  <InputField
+                    label="WakaTime API Key"
+                    value={wakatimeApi}
+                    onChange={setWakatimeApi}
+                    placeholder="WakaTime API Key..."
                   />
                 </div>
               </div>

@@ -31,7 +31,7 @@ export const userMiddleware = async (req: Request, res: Response, next: NextFunc
 
         // Lazy update of user in db from clerk
         try{
-            await prismaClient.user.upsert({
+            await prismaClient.candidate.upsert({
                 where: { clerk_id: decoded.sub },
                 update: {},
                 create: {
@@ -39,7 +39,6 @@ export const userMiddleware = async (req: Request, res: Response, next: NextFunc
                     email: `${decoded.sub}@gmail.com`,
                     first_name: "",
                     last_name: "",
-                    role: "user"
                 }
             })
         }catch(err){

@@ -26,15 +26,12 @@ export const adminMiddleware = async (req: Request, res: Response, next: NextFun
         req.user_id = decoded.sub as string;
 
         try {
-            const user = await prismaClient.user.upsert({
+            const user = await prismaClient.recruiter.upsert({
                 where: { clerk_id: decoded.sub },
                 update: {},
                 create: {
                     clerk_id: decoded.sub,
                     email: `${decoded.sub}@gmail.com`,
-                    first_name: "",
-                    last_name: "",
-                    role: "admin"
                 }
             });
 
