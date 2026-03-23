@@ -17,6 +17,7 @@ export default function CandidateDetails() {
   const [lcUrl, setLcUrl] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [cfUrl, setCfUrl] = useState<string>("");
+  const [lnUrl, setLnUrl] = useState<string>("");
   const [wakatimeApi, setWakatimeApi] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -239,6 +240,12 @@ export default function CandidateDetails() {
                     value={wakatimeApi}
                     onChange={setWakatimeApi}
                     placeholder="WakaTime API Key..."
+                  />
+                  <InputField
+                    label="LinkedIn Profile"
+                    value={lnUrl}
+                    onChange={setLnUrl}
+                    placeholder="https://linkedin.com/in/username"
                   />
                 </div>
               </div>

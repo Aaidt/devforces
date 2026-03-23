@@ -7,9 +7,10 @@ import axios from "axios";
 type Profile = {
     profile_pic_url: string,
     first_name: string,
+    role: "candidate" | "recruiter",
     user: {
         clerk_id: string,
-        username: string,
+        first_name: string,
         profile_pic_key: string,
         last_name: string,
         phone: number,
@@ -18,8 +19,8 @@ type Profile = {
         gh_url: string,
         lc_url?: string,
         cf_url?: string,
+        ln_url?: string,
         wakatime_api?: string,
-        role: "user" | "admin",
         company_name?: string,
         company_description?: string,
         company_website?: string,

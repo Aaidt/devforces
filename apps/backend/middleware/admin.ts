@@ -31,7 +31,7 @@ export const adminMiddleware = async (req: Request, res: Response, next: NextFun
                 update: {},
                 create: {
                     clerk_id: decoded.sub,
-                    email: `${decoded.sub}@gmail.com`,
+                    email: decoded.email as string,
                 }
             });
 

@@ -31,7 +31,7 @@ export default function ProfilePage() {
     );
   }
 
-  const isAdmin = profile.user.role === "admin";
+  const isAdmin = profile.role === "recruiter";
   const accentColor = isAdmin ? "emerald" : "blue";
 
   // Handle Extraction Helpers
@@ -98,7 +98,7 @@ export default function ProfilePage() {
               <p
                 className={`font-bold tracking-widest text-xs uppercase flex items-center justify-center md:justify-start gap-2 ${isAdmin ? "text-emerald-500" : "text-blue-500"}`}
               >
-                @{username}
+                @{profile.user.first_name}
               </p>
             </div>
 

@@ -61,7 +61,7 @@ export function NavbarUser() {
 
   const profilePic = profile?.profile_pic_url;
   const username = profile?.first_name;
-  const isAdmin = profile?.user?.role === "admin";
+  const isAdmin = profile?.role === "recruiter";
 
   if (profilePic && username) {
     return (

@@ -25,8 +25,8 @@ enum Status {
 }
 
 model Candidate {
-   clerk_id        String   @id
-   email           String   @unique
+   clerk_id        String    @id
+   email           String    @unique
    email_verified  Boolean?
    first_name      String
    last_name       String
@@ -37,7 +37,9 @@ model Candidate {
    gh_url          String?
    lc_url          String?
    cf_url          String?
+   ln_url          String?
    wakatime_api    String?
+   deleted_at      DateTime?
 
    created_at DateTime @default(now())
    updated_at DateTime @updatedAt
@@ -49,12 +51,14 @@ model Candidate {
 model Recruiter {
    clerk_id String @id
 
-   email               String   @unique
+   email               String    @unique
    email_verified      Boolean?
    company_name        String?
    company_description String?
    company_website     String?
    company_employees   Int?
+   deleted_at          DateTime?
+   profile_pic_key     String?
 
    created_at DateTime @default(now())
    updated_at DateTime @updatedAt
@@ -118,11 +122,11 @@ enum QuestionType {
 }
 
 model Challenge {
-   id            String     @id @default(uuid())
-   title         String     @unique
+   id            String       @id @default(uuid())
+   title         String       @unique
    max_pts       Int
    challenge_doc String
-   difficulty    Difficulty @default(medium)
+   difficulty    Difficulty   @default(medium)
    question_type QuestionType
 
    contest_to_challenge_mapping Contest_to_Challenge_mapping[]

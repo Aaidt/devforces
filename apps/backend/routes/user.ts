@@ -45,7 +45,7 @@ userRouter.post("/profile_pic/url", async (req, res) => {
   } catch (err) {
     console.log(
       "Server error: Failed to get presigned url for profile_pic upload, err: " +
-        err,
+      err,
     );
     res
       .status(500)
@@ -398,7 +398,7 @@ userRouter.get("/me", async (req, res) => {
       user = JSON.parse(userStr);
     } else {
       user = await prismaClient.candidate.findUnique({
-        where: { clerk_id: user_id },
+        where: { clerk_id: user_id, deleted_at: null },
       });
       if (user) {
         await redis.set(`user:${user_id}`, JSON.stringify(user), "EX", 300);
@@ -424,6 +424,7 @@ userRouter.get("/me", async (req, res) => {
       first_name: user.first_name,
       profile_pic_url: profilePicUrl,
       user,
+      role: "candidate"
     });
   } catch (err) {
     console.log("Error while fetching from /me endpoint: ", err);
@@ -486,23 +487,18 @@ userRouter.delete("/me", async (req, res) => {
 
   // 5. Delete the user record
   try {
-    await prismaClient.candidate.delete({
+    await prismaClient.candidate.update({
       where: { clerk_id: user_id },
+      data: { deleted_at: new Date() },
     });
 
     // 6. Clear Redis cache
     await redis.del(`user:${user_id}`);
 
-    res
-      .status(200)
-      .json({
-        message: "Account and all associated data deleted successfully.",
-      });
+    res.status(200).json({ message: "Account and all associated data deleted successfully." });
   } catch (err) {
     console.error("Error deleting user data:", err);
-    res
-      .status(500)
-      .json({ message: "Failed to delete account. Please try again." });
+    res.status(500).json({ message: "Failed to delete account. Please try again." });
   }
 });
 
